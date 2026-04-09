@@ -152,7 +152,7 @@ while (l < r - 1) {
             <input type="number" id="threshold" value="7" min="0" max="100">
             
             <div class="try-it">
-                <button onclick="runBinarySearchDemo()">🔍 Найти границу</button>
+                <button onclick="runBinarySearchDemo()"> Найти границу</button>
                 <button onclick="loadExample1()">Пример: хорошие числа &lt; 7</button>
                 <button onclick="loadExample2()">Пример: хорошие числа ≤ 5</button>
             </div>
@@ -176,11 +176,11 @@ while (l < r - 1) {
             const threshold = parseInt(document.getElementById('threshold').value);
             
             if (isNaN(n) || n < 1) {
-                document.getElementById('demo-output').innerHTML = '❌ Введите корректное n (≥ 1)';
+                document.getElementById('demo-output').innerHTML = ' Введите корректное n (≥ 1)';
                 return;
             }
             if (isNaN(threshold) || threshold < 0 || threshold > n) {
-                document.getElementById('demo-output').innerHTML = `❌ Введите порог от 0 до ${n}`;
+                document.getElementById('demo-output').innerHTML = ` Введите порог от 0 до ${n}`;
                 return;
             }
             
@@ -189,11 +189,11 @@ while (l < r - 1) {
             
             // Проверка условия
             if (isGood(0) !== true) {
-                document.getElementById('demo-output').innerHTML = `❌ Ошибка: число 0 должно быть хорошим (при x=0, ${isGood(0)})`;
+                document.getElementById('demo-output').innerHTML = ` Ошибка: число 0 должно быть хорошим (при x=0, ${isGood(0)})`;
                 return;
             }
             if (isGood(n) !== false) {
-                document.getElementById('demo-output').innerHTML = `❌ Ошибка: число ${n} должно быть плохим (при x=${n}, ${isGood(n)})`;
+                document.getElementById('demo-output').innerHTML = ` Ошибка: число ${n} должно быть плохим (при x=${n}, ${isGood(n)})`;
                 return;
             }
             
@@ -223,7 +223,7 @@ while (l < r - 1) {
             const stepsDiv = document.getElementById('step-by-step');
             const stepsContainer = document.getElementById('steps-container');
             
-            outputDiv.innerHTML = `✅ Самое большое хорошее число: <strong>${answer}</strong><br>📊 Проверка: ${answer} — хорошее (${isGood(answer)}), ${answer + 1} — плохое (${isGood(answer + 1)})`;
+            outputDiv.innerHTML = ` Самое большое хорошее число: <strong>${answer}</strong><br> Проверка: ${answer} — хорошее (${isGood(answer)}), ${answer + 1} — плохое (${isGood(answer + 1)})`;
             
             stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
             stepsDiv.style.display = 'block';
