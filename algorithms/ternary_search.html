@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Тернарный поиск - поиск экстремума унимодальной функции</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+        
+        .formula {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        
+        .function-plot {
+            background: rgba(171, 205, 239, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/search.html" class="back-btn">← Назад к алгоритмам поиска</a>
+        
+        <header>
+            <h1>Тернарный поиск</h1>
+            <p>Поиск максимума или минимума унимодальной функции</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>l, r = 0, n
+while r - l > 2:
+    m1 = l + (r - l) // 3
+    m2 = r - (r - l) // 3
+    
+    if f(m1) < f(m2):
+        l = m1
+    else:
+        r = m2
+
+# Ответ: l (или перебираем точки l, l+1, l+2)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>int l = 0, r = n;
+while (r - l > 2) {
+    int m1 = l + (r - l) / 3;
+    int m2 = r - (r - l) / 3;
+    
+    if (f(m1) < f(m2))
+        l = m1;
+    else
+        r = m2;
+}
+// Ответ: l (или перебираем точки l, l+1, l+2)</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает тернарный поиск?</h3>
+            <p><strong>Тернарный поиск</strong> — это алгоритм для нахождения максимума или минимума <strong>унимодальной функции</strong> (функции, которая сначала возрастает, а потом убывает, или наоборот).</p>
+            
+            <div class="function-plot">
+                <pre style="background: transparent; padding: 0;">
+    f(x)
+     ↑
+     │    ╱╲
+     │   ╱  ╲
+     │  ╱    ╲
+     │ ╱      ╲
+     │╱        ╲
+     └──────────→ x
+        l    r</pre>
+                <p style="font-size: 12px; margin-top: 5px;">Пример унимодальной функции (сначала ↗, потом ↘)</p>
+            </div>
+            
+            <h4>Основная идея</h4>
+            <p>Если функция унимодальна (сначала возрастает, потом убывает, или наоборот), то максимум (или минимум) можно найти, сравнивая значения в двух внутренних точках.</p>
+            
+            <h4>Пошаговое объяснение</h4>
+            <ul>
+                <li>Имеем отрезок <code>[l, r)</code>, на котором ищем максимум</li>
+                <li>Пока длина отрезка больше 2, делим его на три части:</li>
+            </ul>
+            <pre style="background: rgba(0,0,0,0.05); padding: 8px; margin: 8px 0;"><code>m1 = l + (r - l) / 3
+m2 = r - (r - l) / 3</code></pre>
+            <ul>
+                <li>Сравниваем <code>f(m1)</code> и <code>f(m2)</code>:
+                    <ul>
+                        <li>Если <code>f(m1) < f(m2)</code> → максимум правее m1, сдвигаем <code>l = m1</code></li>
+                        <li>Иначе → максимум левее m2, сдвигаем <code>r = m2</code></li>
+                    </ul>
+                </li>
+                <li>Когда осталось 2-3 точки, перебираем их и находим максимум</li>
+            </ul>
+            
+            <h4>Почему это работает?</h4>
+            <ul>
+                <li>Если <code>f(m1) < f(m2)</code>, то m1 не может быть максимумом (справа есть большее значение), и всё, что левее m1 — тоже</li>
+                <li>Если <code>f(m1) > f(m2)</code>, то m2 не может быть максимумом, и всё, что правее m2 — тоже</li>
+                <li>За одну итерацию отрезок сокращается в ≈1.5 раза</li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(log n)</strong> — за каждый шаг отрезок уменьшается в 1.5 раза.</p>
+            
+            <p><strong>Когда применяется:</strong></p>
+            <ul>
+                <li>Поиск максимума/минимума выпуклой/вогнутой функции</li>
+                <li>Оптимизационные задачи на отрезке</li>
+                <li>Поиск точки экстремума, когда функция непрерывна и унимодальна</li>
+            </ul>
+        </div>
+
+        <!-- Пример -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Пусть функция <code>f(x) = -(x-5)² + 25</code> (парабола ветвями вниз, максимум в x=5). Ищем максимум на отрезке <code>[0, 10]</code>.</p>
+            
+            <div class="input-example">
+                <h4>Шаги алгоритма:</h4>
+                <pre><code>Начало: l=0, r=10
+Шаг 1: m1 = 0 + (10-0)/3 = 3, m2 = 10 - (10-0)/3 = 7
+       f(3) = -(3-5)²+25 = 21, f(7) = -(7-5)²+25 = 21
+       f(3) == f(7) → сдвигаем l = 3, r = 7
+
+Шаг 2: m1 = 3 + (7-3)/3 = 4, m2 = 7 - (7-3)/3 = 6
+       f(4) = 24, f(6) = 24
+       f(4) == f(6) → сдвигаем l = 4, r = 6
+
+Шаг 3: m1 = 4 + (6-4)/3 = 4, m2 = 6 - (6-4)/3 = 6
+       r - l = 2 → останавливаемся
+
+Перебираем точки 4, 5, 6: f(4)=24, f(5)=25, f(6)=24
+Максимум в x = 5</code></pre>
+                <p><strong>Ответ: x = 5</strong> (максимум функции)</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать тернарный поиск онлайн</h3>
+            <p>Выберите тип функции и найдите экстремум:</p>
+            
+            <label>Тип функции:</label>
+            <select id="function-type">
+                <option value="parabola">Парабола (максимум в 5) — f(x) = -(x-5)² + 25</option>
+                <option value="mountain">Гора (максимум в 7) — f(x) = -|x-7| + 10</option>
+                <option value="valley">Долина (минимум в 3) — f(x) = (x-3)² + 1</option>
+            </select>
+            
+            <label>Левая граница (l):</label>
+            <input type="number" id="left-bound" value="0">
+            
+            <label>Правая граница (r):</label>
+            <input type="number" id="right-bound" value="10">
+            
+            <div class="try-it">
+                <button onclick="runTernarySearch()"> Найти экстремум</button>
+                <button onclick="loadExample1()">Пример: парабола на [0,10]</button>
+                <button onclick="loadExample2()">Пример: гора на [0,15]</button>
+                <button onclick="loadExample3()">Пример: долина на [0,10]</button>
+            </div>
+            
+            <div class="output" id="demo-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        // Разные функции для тестирования
+        function getFunction(type) {
+            if (type === 'parabola') {
+                // Парабола ветвями вниз, максимум в 5
+                return (x) => -(x - 5) * (x - 5) + 25;
+            } else if (type === 'mountain') {
+                // Гора, максимум в 7
+                return (x) => -Math.abs(x - 7) + 10;
+            } else {
+                // Долина, минимум в 3 (для минимума нужно инвертировать сравнение)
+                return (x) => (x - 3) * (x - 3) + 1;
+            }
+        }
+        
+        function getFunctionName(type) {
+            if (type === 'parabola') return 'f(x) = -(x-5)² + 25 (максимум в 5)';
+            if (type === 'mountain') return 'f(x) = -|x-7| + 10 (максимум в 7)';
+            return 'f(x) = (x-3)² + 1 (минимум в 3)';
+        }
+        
+        function runTernarySearch() {
+            const type = document.getElementById('function-type').value;
+            let l = parseFloat(document.getElementById('left-bound').value);
+            let r = parseFloat(document.getElementById('right-bound').value);
+            const f = getFunction(type);
+            const isMinimization = (type === 'valley');
+            
+            if (isNaN(l) || isNaN(r)) {
+                document.getElementById('demo-output').innerHTML = ' Введите корректные границы';
+                return;
+            }
+            
+            if (l >= r) {
+                document.getElementById('demo-output').innerHTML = ' Левая граница должна быть меньше правой';
+                return;
+            }
+            
+            // Проверяем, что границы целые для дискретного поиска
+            if (!Number.isInteger(l) || !Number.isInteger(r)) {
+                document.getElementById('demo-output').innerHTML = ' Границы должны быть целыми числами';
+                return;
+            }
+            
+            const steps = [];
+            const originalL = l, originalR = r;
+            steps.push(`Функция: ${getFunctionName(type)}`);
+            steps.push(`Ищем ${isMinimization ? 'минимум' : 'максимум'} на отрезке [${l}, ${r}]`);
+            steps.push(`Начало: l = ${l}, r = ${r}`);
+            
+            let iteration = 1;
+            
+            while (r - l > 2) {
+                const m1 = Math.floor(l + (r - l) / 3);
+                const m2 = Math.floor(r - (r - l) / 3);
+                const f1 = f(m1);
+                const f2 = f(m2);
+                
+                steps.push(`\nШаг ${iteration}: l=${l}, r=${r}`);
+                steps.push(`  m1 = ${m1}, f(m1) = ${f1.toFixed(2)}`);
+                steps.push(`  m2 = ${m2}, f(m2) = ${f2.toFixed(2)}`);
+                
+                if (isMinimization) {
+                    // Для минимума: если f(m1) > f(m2), то минимум правее
+                    if (f1 > f2) {
+                        l = m1;
+                        steps.push(`  f(m1) > f(m2) → сдвигаем l = ${l}`);
+                    } else {
+                        r = m2;
+                        steps.push(`  f(m1) <= f(m2) → сдвигаем r = ${r}`);
+                    }
+                } else {
+                    // Для максимума: если f(m1) < f(m2), то максимум правее
+                    if (f1 < f2) {
+                        l = m1;
+                        steps.push(`  f(m1) < f(m2) → сдвигаем l = ${l}`);
+                    } else {
+                        r = m2;
+                        steps.push(`  f(m1) >= f(m2) → сдвигаем r = ${r}`);
+                    }
+                }
+                iteration++;
+            }
+            
+            steps.push(`\nЗавершение: r - l = ${r - l} ≤ 2, остались точки: ${l}, ${l+1}, ${l+2}`);
+            
+            // Перебираем оставшиеся точки
+            let bestX = l;
+            let bestValue = f(l);
+            const candidates = [];
+            
+            for (let x = l; x <= Math.min(r, l + 2); x++) {
+                const val = f(x);
+                candidates.push(`x=${x}: ${val.toFixed(2)}`);
+                if (isMinimization) {
+                    if (val < bestValue) {
+                        bestValue = val;
+                        bestX = x;
+                    }
+                } else {
+                    if (val > bestValue) {
+                        bestValue = val;
+                        bestX = x;
+                    }
+                }
+            }
+            
+            steps.push(`  Значения: ${candidates.join(', ')}`);
+            steps.push(`  Лучшая точка: x = ${bestX} (${isMinimization ? 'минимум' : 'максимум'} = ${bestValue.toFixed(2)})`);
+            
+            const outputDiv = document.getElementById('demo-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = ` ${isMinimization ? 'Минимум' : 'Максимум'} найден в точке <strong>x = ${bestX}</strong><br> Значение функции: <strong>f(${bestX}) = ${bestValue.toFixed(2)}</strong><br> Проверка: f(${bestX-1}) = ${f(bestX-1)?.toFixed(2) || 'нет'}, f(${bestX+1}) = ${f(bestX+1)?.toFixed(2) || 'нет'}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('function-type').value = 'parabola';
+            document.getElementById('left-bound').value = '0';
+            document.getElementById('right-bound').value = '10';
+            runTernarySearch();
+        }
+        
+        function loadExample2() {
+            document.getElementById('function-type').value = 'mountain';
+            document.getElementById('left-bound').value = '0';
+            document.getElementById('right-bound').value = '15';
+            runTernarySearch();
+        }
+        
+        function loadExample3() {
+            document.getElementById('function-type').value = 'valley';
+            document.getElementById('left-bound').value = '0';
+            document.getElementById('right-bound').value = '10';
+            runTernarySearch();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

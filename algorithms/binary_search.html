@@ -131,12 +131,12 @@ int main() {
         <!-- Встроенные функции -->
         <div class="builtin-container">
             <div class="code-block">
-                <div class="code-header">📚 Python (встроенная функция)</div>
+                <div class="code-header"> Python (встроенная функция)</div>
                 <pre><code>import bisect
 index = bisect.bisect_left(A, x)</code></pre>
             </div>
             <div class="code-block">
-                <div class="code-header">📚 C++ (встроенная функция)</div>
+                <div class="code-header"> C++ (встроенная функция)</div>
                 <pre><code>#include &lt;algorithm&gt;
 int index = lower_bound(arr.begin(), arr.end(), x) - arr.begin();</code></pre>
             </div>
@@ -214,7 +214,7 @@ m=4 → A[4]=9 < 10 → l=4
             <input type="number" id="x-value" value="10">
             
             <div class="try-it">
-                <button onclick="runBinarySearchDemo()">🔍 Найти индекс</button>
+                <button onclick="runBinarySearchDemo()"> Найти индекс</button>
                 <button onclick="loadExample1()">Пример 1: массив [1,3,5,7,9,11,13], x=10</button>
                 <button onclick="loadExample2()">Пример 2: все элементы меньше x</button>
                 <button onclick="loadExample3()">Пример 3: все элементы больше x</button>
@@ -243,12 +243,12 @@ m=4 → A[4]=9 < 10 → l=4
             const n = A.length;
             
             if (n === 0) {
-                document.getElementById('demo-output').innerHTML = '❌ Введите массив чисел';
+                document.getElementById('demo-output').innerHTML = ' Введите массив чисел';
                 return;
             }
             
             if (isNaN(x)) {
-                document.getElementById('demo-output').innerHTML = '❌ Введите число x';
+                document.getElementById('demo-output').innerHTML = ' Введите число x';
                 return;
             }
             
@@ -262,7 +262,7 @@ m=4 → A[4]=9 < 10 → l=4
             }
             
             if (!isSorted) {
-                document.getElementById('demo-output').innerHTML = '⚠️ Массив не отсортирован! Пожалуйста, введите отсортированный массив.';
+                document.getElementById('demo-output').innerHTML = ' Массив не отсортирован! Пожалуйста, введите отсортированный массив.';
                 return;
             }
             
@@ -295,9 +295,9 @@ m=4 → A[4]=9 < 10 → l=4
             const stepsContainer = document.getElementById('steps-container');
             
             if (answer < 0 || answer >= n) {
-                outputDiv.innerHTML = `✅ Индекс последнего элемента, меньшего ${x}: <strong>${answer}</strong><br>📊 Все элементы ${answer === -1 ? 'больше или равны' : 'меньше'} x`;
+                outputDiv.innerHTML = ` Индекс последнего элемента, меньшего ${x}: <strong>${answer}</strong><br> Все элементы ${answer === -1 ? 'больше или равны' : 'меньше'} x`;
             } else {
-                outputDiv.innerHTML = `✅ Индекс последнего элемента, меньшего ${x}: <strong>${answer}</strong><br>📊 A[${answer}] = ${A[answer]} ${A[answer] < x ? '<' : '>='} ${x}`;
+                outputDiv.innerHTML = ` Индекс последнего элемента, меньшего ${x}: <strong>${answer}</strong><br> A[${answer}] = ${A[answer]} ${A[answer] < x ? '<' : '>='} ${x}`;
             }
             
             stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
