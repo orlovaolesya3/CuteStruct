@@ -14,12 +14,12 @@
             min-height: 100vh;
         }
 
-        /* === ФОТОАППАРАТ — ПЕРЕДНИЙ СЛОЙ (СДВИНУТ ВПРАВО) === */
+        /* === ФОТОАППАРАТ === */
         .camera-wrapper {
             position: fixed;
-            bottom: 30px;
-            left: 15%;                    /* было 5%, стало 15% — сдвиг вправо */
-            width: 320px;
+            bottom: 5vh;
+            left: 8%;
+            width: min(320px, 35vw);
             max-width: 35vw;
             z-index: 200;
             cursor: pointer;
@@ -42,10 +42,10 @@
         /* Кнопка спуска */
         .shutter {
             position: absolute;
-            left: 217px;
-            top: 730px;
-            width: 130px;
-            height: 130px;
+            left: 68%;
+            top: 66%;
+            width: 26%;
+            height: 18%;
             cursor: pointer;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.25);
@@ -56,99 +56,55 @@
             background: rgba(255, 255, 255, 0.5);
         }
 
-        @media (max-width: 700px) {
-            .camera-wrapper { 
-                left: 12%;
-                width: 240px; 
-            }
-            .shutter { left: 163px; top: 548px; width: 98px; height: 98px; }
-        }
-        @media (max-width: 500px) {
-            .camera-wrapper { 
-                left: 8%;
-                width: 180px; 
-            }
-            .shutter { left: 122px; top: 410px; width: 73px; height: 73px; }
-        }
-
-        /* === ВЕРТИКАЛЬНАЯ ПОДСКАЗКА (СДВИНУТА ВПРАВО ВМЕСТЕ С КАМЕРОЙ) === */
+        /* === ВЕРТИКАЛЬНАЯ ПОДСКАЗКА === */
         .hint {
             position: fixed;
-            bottom: 200px;
-            left: calc(15% + 330px);
+            bottom: 30vh;
+            left: calc(8% + min(320px, 35vw) + 2vw);
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            font-size: 14px;
+            font-size: clamp(10px, 2.5vw, 14px);
             font-weight: 500;
             color: #888;
             white-space: nowrap;
             z-index: 100;
             pointer-events: none;
         }
-        @media (max-width: 700px) {
-            .hint {
-                left: calc(12% + 250px);
-                bottom: 160px;
-                font-size: 12px;
-            }
-        }
-        @media (max-width: 500px) {
-            .hint {
-                left: calc(8% + 190px);
-                bottom: 120px;
-                font-size: 10px;
-            }
-        }
         body.dark-theme .hint {
             color: #aaa;
         }
 
-        /* === МЕСТО ДЛЯ ПОСЛЕДНЕЙ ФОТОГРАФИИ (СДВИНУТО ВПРАВО) === */
+        /* === МЕСТО ДЛЯ ПОСЛЕДНЕЙ ФОТОГРАФИИ === */
         .photo-stack {
             position: fixed;
-            bottom: 480px;
-            left: calc(15% + 40px);
-            width: calc(320px - 80px);
-            max-width: calc(35vw - 80px);
+            bottom: 58vh;
+            left: calc(8% + min(320px, 35vw) * 0.12);
+            width: calc(min(320px, 35vw) * 0.8);
             z-index: 150;
             pointer-events: none;
         }
-        @media (max-width: 700px) {
-            .photo-stack {
-                bottom: 360px;
-                left: calc(12% + 30px);
-                width: calc(240px - 60px);
-            }
-        }
-        @media (max-width: 500px) {
-            .photo-stack {
-                bottom: 260px;
-                left: calc(8% + 20px);
-                width: calc(180px - 40px);
-            }
-        }
 
-        /* Последняя фотография */
+        /* Последняя фотография — увеличен размер, уменьшена рамка */
         .last-photo {
             background: white;
-            padding: 10px 10px 8px;
+            padding: 6px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.2);
             text-align: center;
             width: 100%;
             opacity: 1;
-            transition: opacity 0.2s;
         }
         .last-photo img {
             width: 100%;
             aspect-ratio: 1 / 1;
             object-fit: cover;
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .last-photo p {
-            font-size: 12px;
+            font-size: clamp(10px, 2vw, 12px);
             font-weight: 500;
             margin: 0;
+            padding: 2px 0;
             color: #333;
         }
         body.dark-theme .last-photo {
@@ -159,55 +115,43 @@
             color: #333;
         }
 
-        /* === АНИМАЦИЯ ВЫЕЗДА ФОТО (СДВИНУТО ВПРАВО) === */
+        /* === АНИМАЦИЯ ВЫЕЗДА — увеличен размер, уменьшена рамка === */
         .animated-photo-container {
             position: fixed;
-            bottom: 30px;
-            left: calc(15% + 40px);
-            width: calc(320px - 80px);
+            bottom: 5vh;
+            left: calc(8% + min(320px, 35vw) * 0.12);
+            width: calc(min(320px, 35vw) * 0.8);
             z-index: 180;
             pointer-events: none;
-        }
-        @media (max-width: 700px) {
-            .animated-photo-container {
-                left: calc(12% + 30px);
-                width: calc(240px - 60px);
-            }
-        }
-        @media (max-width: 500px) {
-            .animated-photo-container {
-                left: calc(8% + 20px);
-                width: calc(180px - 40px);
-            }
         }
 
         .anim-photo {
             background: white;
-            padding: 10px 10px 8px;
+            padding: 6px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             text-align: center;
             opacity: 0;
             transform: translateY(0);
         }
         .anim-photo.animate {
-            animation: liftHigh 1.4s cubic-bezier(0.2, 0.85, 0.3, 1) forwards;
+            animation: liftUp 1.4s cubic-bezier(0.2, 0.85, 0.3, 1) forwards;
         }
-        @keyframes liftHigh {
+        @keyframes liftUp {
             0% {
                 opacity: 0;
                 transform: translateY(0);
             }
             20% {
                 opacity: 1;
-                transform: translateY(-30px);
+                transform: translateY(-10vh);
             }
             60% {
                 opacity: 1;
-                transform: translateY(-250px);
+                transform: translateY(-35vh);
             }
             100% {
                 opacity: 1;
-                transform: translateY(-480px);
+                transform: translateY(-55vh);
             }
         }
         .anim-photo img {
@@ -215,12 +159,13 @@
             aspect-ratio: 1 / 1;
             object-fit: cover;
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .anim-photo p {
-            font-size: 13px;
+            font-size: clamp(10px, 2vw, 13px);
             font-weight: 500;
             margin: 0;
+            padding: 2px 0;
             color: #333;
         }
         body.dark-theme .anim-photo {
@@ -245,38 +190,32 @@
             transition: opacity 0.12s ease-out;
         }
 
-        /* === ОСНОВНОЙ КОНТЕНТ — В ПРАВОЙ ПОЛОВИНЕ === */
+        /* === ОСНОВНОЙ КОНТЕНТ === */
         .right-content {
             position: relative;
-            width: 40%;
+            width: 45%;
             margin-left: 55%;
-            padding: 20px;
+            padding: 2%;
             padding-bottom: 75vh;
-        }
-        @media (max-width: 900px) {
-            .right-content {
-                width: 45%;
-                margin-left: 50%;
-            }
         }
         @media (max-width: 768px) {
             .right-content {
-                width: 90%;
-                margin-left: 5%;
+                width: 85%;
+                margin-left: 10%;
                 text-align: center;
                 padding-bottom: 80vh;
             }
         }
 
-        /* Кнопка "На главную" */
         .back-btn {
             display: inline-block;
             text-decoration: none;
             margin-bottom: 20px;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 8px;
             transition: background 0.3s;
             font-weight: 500;
+            font-size: clamp(12px, 2vw, 14px);
         }
         body.light-theme .back-btn {
             background: rgba(171, 205, 239, 0.8);
@@ -298,25 +237,20 @@
             margin-bottom: 30px;
         }
         .right-content h1 {
-            font-size: 2.2em;
+            font-size: clamp(20px, 5vw, 36px);
             margin-bottom: 10px;
         }
         .right-content p {
-            font-size: 1em;
+            font-size: clamp(12px, 3vw, 16px);
             opacity: 0.8;
         }
 
         .support-text {
             text-align: left;
         }
-        .support-text h2 {
-            font-size: 1.8em;
-            margin-bottom: 20px;
-            margin-top: 30px;
-        }
         .support-text p {
-            font-size: 1.1em;
-            line-height: 1.6;
+            font-size: clamp(14px, 3vw, 18px);
+            line-height: 1.5;
             margin-bottom: 16px;
         }
         @media (max-width: 768px) {
@@ -338,23 +272,17 @@
         </div>
     </div>
 
-    <!-- ВЕРТИКАЛЬНАЯ ПОДСКАЗКА -->
     <div class="hint">нажми на фотик</div>
 
-    <!-- АНИМАЦИЯ ВЫЕЗДА -->
     <div class="animated-photo-container" id="animatedPhotoContainer"></div>
-
-    <!-- ПОСЛЕДНЯЯ ФОТОГРАФИЯ -->
     <div class="photo-stack" id="photoStack"></div>
 
-    <!-- ВСЁ ОСТАЛЬНОЕ — В ПРАВОЙ ПОЛОВИНЕ -->
     <div class="right-content">
         <a href="../index.html" class="back-btn">← На главную</a>
         <header>
             <h1>Немного добрых слов</h1>
             <p>Все будет круто</p>
         </header>
-
         <div class="support-text">
             <p>Олимпиады это лишь маленький этап в твоей огромной жизни</p>
             <p>Я верю, что ты со всем справишься</p>
@@ -371,33 +299,15 @@
             "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg"
         ];
         const phrases = [
-            "Смотри, какой ты умничка!",
-            "Какая ты хорошая!",
-            "Ты просто прелесть! ",
-            "Какая милота!",
-            "Ты самый лучший! ",
-            "Обожаю твою улыбку! ",
-            "Ты чудесно выглядишь! ",
-            "Какой ты классный! ",
-            "Ты молодец, правда! ",
-            "Хорошо, что ты есть! ",
-            "У тебя отлично получается!",
-            "Ты справляешься, и это круто!",
-            "У тебя всё сложится!",
-            "Просто напоминаю: ты можешь!",
-            "Ты стараешься, и это заметно!",
-            "Сегодня ты уже сделал(а) многое!",
-            "Ты — приятный человек!",
-            "Ты есть, и это уже победа!",
-            "Просто ты есть, и это хорошо!",
-            "Мяу!",
-            "Ты смог(ла) больше, чем кажется!",
-            "Ты сделал(а) этот мир лучше!",
-            "Хорошего тебе дня, умница!",
-            "Ты умничка!)",
-            "Я в тебя верю!)",
-            "Ты всё сможешь!)",
-            "Ты молодец!)"
+            "Смотри, какой ты умничка!", "Какая ты хорошая!", "Ты просто прелесть! ",
+            "Какая милота!", "Ты самый лучший! ", "Обожаю твою улыбку! ",
+            "Ты чудесно выглядишь! ", "Какой ты классный! ", "Ты молодец, правда! ",
+            "Хорошо, что ты есть! ", "У тебя отлично получается!", "Ты справляешься, и это круто!",
+            "У тебя всё сложится!", "Просто напоминаю: ты можешь!", "Ты стараешься, и это заметно!",
+            "Сегодня ты уже сделал(а) многое!", "Ты — приятный человек!", "Ты есть, и это уже победа!",
+            "Просто ты есть, и это хорошо!", "Мяу!", "Ты смог(ла) больше, чем кажется!",
+            "Ты сделал(а) этот мир лучше!", "Хорошего тебе дня, умница!", "Ты умничка!)",
+            "Я в тебя верю!)", "Ты всё сможешь!)", "Ты молодец!)"
         ];
 
         let isAnimating = false;
