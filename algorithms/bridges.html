@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Поиск мостов - алгоритм Тарьяна</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .try-it textarea {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+        
+        <header>
+            <h1>Поиск мостов</h1>
+            <p>Нахождение рёбер, удаление которых увеличивает число компонент связности</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n, m = map(int, input().split())
+G = [[] for _ in range(n)]
+
+for _ in range(m):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    G[a].append(b)
+    G[b].append(a)
+
+used = [0] * n
+T = [0] * n      # Время входа
+L = [0] * n      # Минимальное достижимое время
+B = []           # Мосты
+t = 0            # Текущее время
+
+def dfs(h, p):
+    global t
+    used[h] = 1
+    T[h] = t
+    L[h] = t
+    t += 1
+    for a in G[h]:
+        if not used[a]:
+            dfs(a, h)
+            L[h] = min(L[h], L[a])
+            if L[a] > T[h]:
+                B.append([h + 1, a + 1])
+        elif a != p:
+            L[h] = min(L[h], T[a])
+
+for i in range(n):
+    if not used[i]:
+        dfs(i, -1)
+
+for b in B:
+    print(*b)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; G;
+vector&lt;int&gt; used, T, L;
+vector&lt;pair&lt;int, int&gt;&gt; bridges;
+int t = 0;
+
+void dfs(int h, int p) {
+    used[h] = 1;
+    T[h] = t;
+    L[h] = t;
+    t++;
+    
+    for (int a : G[h]) {
+        if (!used[a]) {
+            dfs(a, h);
+            L[h] = min(L[h], L[a]);
+            if (L[a] > T[h]) {
+                bridges.push_back({h, a});
+            }
+        } else if (a != p) {
+            L[h] = min(L[h], T[a]);
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    
+    G.resize(n);
+    used.assign(n, 0);
+    T.resize(n);
+    L.resize(n);
+    
+    for (int i = 0; i < m; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        G[a].push_back(b);
+        G[b].push_back(a);
+    }
+    
+    for (int i = 0; i < n; i++) {
+        if (!used[i]) {
+            dfs(i, -1);
+        }
+    }
+    
+    for (auto [a, b] : bridges) {
+        cout << a + 1 << " " << b + 1 << "\n";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм поиска мостов (Тарьяна)?</h3>
+            <p><strong>Мост</strong> — это ребро, удаление которого увеличивает количество компонент связности в графе. Алгоритм Тарьяна находит все мосты за один обход DFS.</p>
+            
+            <p>Основная идея: ребро (h, a) является мостом, если <strong>L[a] > T[h]</strong>, где:</p>
+            <ul>
+                <li><strong>T[h]</strong> — время входа в вершину h при DFS (tin)</li>
+                <li><strong>L[h]</strong> — минимальное время входа среди вершин, достижимых из поддерева h без использования обратного ребра к предку</li>
+            </ul>
+            
+            <p><strong>Шаги алгоритма:</strong></p>
+            <ul>
+                <li>Запускаем DFS из каждой непосещённой вершины</li>
+                <li>При входе в вершину записываем время входа T[h] и инициализируем L[h] = T[h]</li>
+                <li>Для каждого соседа a вершины h:
+                    <ul>
+                        <li>Если a не посещён — рекурсивно обходим его, затем обновляем L[h] = min(L[h], L[a])</li>
+                        <li>Если L[a] > T[h], то ребро (h, a) — мост</li>
+                        <li>Если a уже посещён и a не родитель (a != p), обновляем L[h] = min(L[h], T[a])</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>Условие L[a] > T[h] означает, что из поддерева вершины a нет обратного ребра, ведущего выше вершины h, поэтому удаление ребра разорвёт граф.</p>
+            
+            <p><strong>Временная сложность: O(n + m)</strong>, где n — количество вершин, m — количество рёбер.</p>
+            <p><strong>Пространственная сложность: O(n + m)</strong>.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n m</code> — количество вершин и количество рёбер</li>
+                <li><code>a b</code> — ребро между вершинами a и b (повторяется m раз)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Пары вершин, соответствующие мостам (по одному на строку)</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>4 4
+1 2
+2 3
+3 4
+2 4</code></pre>
+                <p>Здесь:<br>
+                n=4, m=4<br>
+                Рёбра: 1-2, 2-3, 3-4, 2-4</p>
+                <p><strong>Вывод:</strong><br>
+                1 2</p>
+                <p>Ребро 1-2 — мост, так как его удаление отделит вершину 1 от остальных.</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <button onclick="openVisualizer()">Визуализировать на графе</button>
+
+            <script>
+                function openVisualizer() {
+                    const graphData = {
+                        nodes: [1,2,3,4],
+                        edges: [[1,2],[2,3],[3,4],[2,4]]
+                    };
+                    localStorage.setItem('visualizerGraph', JSON.stringify(graphData));
+                    window.open('../pages/visualizer.html', '_blank');
+                }
+            </script>
+
+            <h3>Попробовать поиск мостов онлайн</h3>
+            <p>Введите неориентированный граф в формате, описанном выше:</p>
+            
+            <label>Ввод:</label>
+            <textarea id="bridges-input" rows="10">4 4
+1 2
+2 3
+3 4
+2 4</textarea>
+            
+            <div class="try-it">
+                <button onclick="runBridges()">Запустить</button>
+                <button onclick="loadExample1()">Пример 1 (граф с мостом)</button>
+                <button onclick="loadExample2()">Пример 2 (без мостов)</button>
+                <button onclick="loadExample3()">Пример 3 (дерево)</button>
+            </div>
+            
+            <div class="output" id="bridges-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runBridges() {
+            const inputText = document.getElementById('bridges-input').value;
+            const lines = inputText.trim().split('\n');
+            
+            try {
+                const firstLine = lines[0].trim().split(/\s+/);
+                const n = parseInt(firstLine[0]);
+                const m = parseInt(firstLine[1]);
+                
+                const G = Array(n).fill().map(() => []);
+                
+                for (let i = 1; i <= m; i++) {
+                    const edge = lines[i].trim().split(/\s+/);
+                    let a = parseInt(edge[0]) - 1;
+                    let b = parseInt(edge[1]) - 1;
+                    G[a].push(b);
+                    G[b].push(a);
+                }
+                
+                const used = Array(n).fill(false);
+                const tin = Array(n).fill(0);
+                const low = Array(n).fill(0);
+                const bridges = [];
+                let timer = 0;
+                const steps = [];
+                
+                steps.push(`Граф (n=${n}, m=${m}):`);
+                for (let i = 0; i < n; i++) {
+                    steps.push(`  ${i+1} → [${G[i].map(v => v+1).join(', ')}]`);
+                }
+                steps.push(``);
+                
+                function dfs(h, p) {
+                    used[h] = true;
+                    tin[h] = timer;
+                    low[h] = timer;
+                    timer++;
+                    steps.push(`Вход в вершину ${h+1}: tin=${tin[h]}, low=${low[h]}`);
+                    
+                    for (let a of G[h]) {
+                        if (!used[a]) {
+                            steps.push(`  Рекурсивный вызов dfs(${a+1}) из ${h+1}`);
+                            dfs(a, h);
+                            low[h] = Math.min(low[h], low[a]);
+                            steps.push(`  Обновляем low[${h+1}] = min(low[${h+1}], low[${a+1}]) = ${low[h]}`);
+                            if (low[a] > tin[h]) {
+                                bridges.push([h, a]);
+                                steps.push(`  Условие low[${a+1}] (${low[a]}) > tin[${h+1}] (${tin[h]}) → ребро ${h+1}-${a+1} является мостом!`);
+                            } else {
+                                steps.push(`  Условие low[${a+1}] (${low[a]}) > tin[${h+1}] (${tin[h]}) → не выполнено, ребро не мост`);
+                            }
+                        } else if (a !== p) {
+                            const oldLow = low[h];
+                            low[h] = Math.min(low[h], tin[a]);
+                            if (oldLow !== low[h]) {
+                                steps.push(`  Обратное ребро ${h+1} → ${a+1} (tin=${tin[a]}), обновляем low[${h+1}] = ${low[h]}`);
+                            }
+                        }
+                    }
+                    steps.push(`Выход из вершины ${h+1}: low[${h+1}] = ${low[h]}\n`);
+                }
+                
+                for (let i = 0; i < n; i++) {
+                    if (!used[i]) {
+                        steps.push(`Запускаем DFS из вершины ${i+1}:`);
+                        dfs(i, -1);
+                    }
+                }
+                
+                steps.push(`Найдено мостов: ${bridges.length}`);
+                
+                const outputDiv = document.getElementById('bridges-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                
+                if (bridges.length === 0) {
+                    outputDiv.innerHTML = `Мостов не найдено`;
+                } else {
+                    outputDiv.innerHTML = `Найденные мосты:<br>${bridges.map(([a, b]) => `${a+1} ${b+1}`).join('<br>')}`;
+                }
+                
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                
+            } catch(e) {
+                document.getElementById('bridges-output').innerHTML = 'Ошибка при разборе ввода: ' + e.message;
+            }
+        }
+        
+        function loadExample1() {
+            document.getElementById('bridges-input').value = `4 4
+1 2
+2 3
+3 4
+2 4`;
+            runBridges();
+        }
+        
+        function loadExample2() {
+            document.getElementById('bridges-input').value = `4 4
+1 2
+2 3
+3 4
+4 1`;
+            runBridges();
+        }
+        
+        function loadExample3() {
+            document.getElementById('bridges-input').value = `5 4
+1 2
+1 3
+1 4
+1 5`;
+            runBridges();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

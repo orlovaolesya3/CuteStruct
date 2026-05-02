@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Подъём по ступенькам - динамическое программирование</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Подъём по ступенькам</h1>
+            <p>Количество способов подняться на n ступенек (шаги 1, 2 или 3)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python (рекурсия + мемоизация)</div>
+                <pre><code>def climb(n, memo={}):
+    if n <= 0:
+        return 1 if n == 0 else 0
+    if n in memo:
+        return memo[n]
+    memo[n] = climb(n-1) + climb(n-2) + climb(n-3)
+    return memo[n]
+
+n = int(input())
+print(climb(n))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++ (рекурсия + мемоизация)</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;long long&gt; memo;
+
+long long climb(int n) {
+    if (n <= 0) return (n == 0) ? 1 : 0;
+    if (memo[n] != -1) return memo[n];
+    return memo[n] = climb(n-1) + climb(n-2) + climb(n-3);
+}
+
+int main() {
+    int n;
+    cin >> n;
+    memo.assign(n + 1, -1);
+    cout << climb(n) << endl;
+    return 0;
+}</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">🐍 Python (DP — итеративный)</div>
+                <pre><code>n = int(input())
+dp = [0] * (n + 1)
+dp[0] = 1
+dp[1] = 1
+dp[2] = 2
+
+for i in range(3, n + 1):
+     dp[i] = dp[i-1] + dp[i-2] + dp[i-3]
+print(dp[n])</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++ (DP — итеративный)</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    vector&lt;long long&gt; dp(n + 1);
+    dp[0] = 1;
+    dp[1] = 1;
+    dp[2] = 2;
+
+    for (int i = 3; i <= n; i++) {
+        dp[i] = dp[i-1] + dp[i-2] + dp[i-3];
+    }
+    cout << dp[n] << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает подъём по ступенькам?</h3>
+            <p>Задача: найти количество способов подняться на n-ю ступеньку, если за один шаг можно подняться на 1, 2 или 3 ступеньки.</p>
+            
+            <p><strong>Основная идея динамического программирования:</strong></p>
+            <ul>
+                <li>На i-ю ступеньку можно попасть только с i-1, i-2 или i-3 ступеньки</li>
+                <li>Значит, количество способов добраться до i равно сумме способов добраться до i-1, i-2 и i-3</li>
+                <li>Формула: <code>dp[i] = dp[i-1] + dp[i-2] + dp[i-3]</code></li>
+            </ul>
+            
+            <p><strong>Базовые случаи:</strong></p>
+            <ul>
+                <li><code>dp[0] = 1</code> (один способ — стоять на месте)</li>
+                <li><code>dp[1] = 1</code> (только шаг на 1)</li>
+                <li><code>dp[2] = 2</code> (1+1 или сразу 2)</li>
+            </ul>
+            
+            <p><strong>Рекурсия с мемоизацией (top-down):</strong> начинаем с n и рекурсивно спускаемся, запоминая результаты.</p>
+            
+            <p><strong>Итеративный DP (bottom-up):</strong> заполняем массив от 0 до n, последовательно вычисляя каждое значение.</p>
+            
+            <p><strong>Временная сложность: O(n)</strong> — каждое значение вычисляется один раз.</p>
+            <p><strong>Пространственная сложность: O(n)</strong> для массива dp или <strong>O(1)</strong> для оптимизированного варианта (хранить только три последних значения).</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n</code> — номер ступеньки (начинаем с 0)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Количество способов подняться на n-ю ступеньку</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>4</code></pre>
+                <p><strong>Вывод: 7</strong></p>
+                <p>Способы подняться на 4-ю ступеньку (1,2,3 шага):<br>
+                1+1+1+1, 1+1+2, 1+2+1, 2+1+1, 2+2, 1+3, 3+1 — всего 7 способов.</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <p>Введите номер ступеньки:</p>
+            
+            <label>n:</label>
+            <input type="number" id="stairs-input" value="4" min="0" max="35">
+            
+            <div class="try-it">
+                <button onclick="runClimbingStairs()">Запустить</button>
+                <button onclick="loadExample1()">Пример: n = 4</button>
+                <button onclick="loadExample2()">Пример: n = 5</button>
+                <button onclick="loadExample3()">Пример: n = 0</button>
+            </div>
+            
+            <div class="output" id="stairs-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение (итеративный DP):</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runClimbingStairs() {
+            const n = parseInt(document.getElementById('stairs-input').value);
+            
+            if (isNaN(n) || n < 0) {
+                document.getElementById('stairs-output').innerHTML = 'Введите неотрицательное число n';
+                return;
+            }
+            
+            const steps = [];
+            steps.push(`Вычисляем количество способов подняться на ${n} ступеньку`);
+            steps.push(`Правило: за шаг можно подняться на 1, 2 или 3 ступеньки`);
+            steps.push(`\nБазовые случаи:`);
+            steps.push(`  dp[0] = 1 (один способ — стоять на месте)`);
+            
+            if (n === 0) {
+                steps.push(`\nРезультат: dp[0] = 1`);
+                document.getElementById('stairs-output').innerHTML = `Количество способов: 1`;
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                return;
+            }
+            
+            steps.push(`  dp[1] = 1 (только шаг 1)`);
+            if (n === 1) {
+                steps.push(`\nРезультат: dp[1] = 1`);
+                document.getElementById('stairs-output').innerHTML = `Количество способов: 1`;
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                return;
+            }
+            
+            steps.push(`  dp[2] = 2 (1+1 или сразу 2)`);
+            if (n === 2) {
+                steps.push(`\nРезультат: dp[2] = 2`);
+                document.getElementById('stairs-output').innerHTML = `Количество способов: 2`;
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                return;
+            }
+            
+            steps.push(`\nЗаполняем массив dp от 3 до ${n}:`);
+            steps.push(`  Формула: dp[i] = dp[i-1] + dp[i-2] + dp[i-3]`);
+            
+            const dp = [0, 0, 0];
+            dp[0] = 1;
+            dp[1] = 1;
+            dp[2] = 2;
+            
+            for (let i = 3; i <= n; i++) {
+                dp[i] = dp[i-1] + dp[i-2] + dp[i-3];
+                steps.push(`  dp[${i}] = dp[${i-1}] + dp[${i-2}] + dp[${i-3}] = ${dp[i-1]} + ${dp[i-2]} + ${dp[i-3]} = ${dp[i]}`);
+            }
+            
+            steps.push(`\nРезультат: dp[${n}] = ${dp[n]}`);
+            
+            const outputDiv = document.getElementById('stairs-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Количество способов подняться на ${n} ступеньку: ${dp[n]}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('stairs-input').value = '4';
+            runClimbingStairs();
+        }
+        
+        function loadExample2() {
+            document.getElementById('stairs-input').value = '5';
+            runClimbingStairs();
+        }
+        
+        function loadExample3() {
+            document.getElementById('stairs-input').value = '0';
+            runClimbingStairs();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

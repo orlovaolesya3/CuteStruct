@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>СНМ - система непересекающихся множеств</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/trees.html" class="back-btn">← Назад к структурам данных</a>
+        
+        <header>
+            <h1>Система непересекающихся множеств</h1>
+            <p>СНМ (DSU) - структура для объединения и поиска компонент</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>def leader(v):
+    if p[v] == v:
+        return v
+    p[v] = leader(p[v])
+    return p[v]
+
+def unite(a, b):
+    a = leader(a)
+    b = leader(b)
+    if s[a] > s[b]:
+        a, b = b, a
+    s[b] += s[a]
+    p[a] = b
+
+p = list(range(n))
+s = [1] * n</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;int&gt; p, sz;
+
+int leader(int v) {
+    if (p[v] == v) return v;
+    return p[v] = leader(p[v]);
+}
+
+void unite(int a, int b) {
+    a = leader(a);
+    b = leader(b);
+    if (sz[a] > sz[b]) swap(a, b);
+    sz[b] += sz[a];
+    p[a] = b;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    
+    p.resize(n);
+    sz.resize(n, 1);
+    for (int i = 0; i < n; i++) {
+        p[i] = i;
+    }
+    
+    // Пример использования
+    unite(0, 1);
+    unite(2, 3);
+    unite(1, 2);
+    
+    for (int i = 0; i < n; i++) {
+        cout << leader(i) << " ";
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает система непересекающихся множеств?</h3>
+            <p><strong>СНМ (Disjoint Set Union, DSU)</strong> — это структура данных, которая эффективно поддерживает операции объединения двух множеств и поиска представителя (лидера) множества.</p>
+            
+            <p><strong>Основные операции:</strong></p>
+            <ul>
+                <li><strong>leader(v)</strong> — находит лидера (корень) множества, содержащего вершину v. Реализована с эвристикой сжатия пути: после нахождения лидера все пройденные вершины переподвешиваются непосредственно к нему.</li>
+                <li><strong>unite(a, b)</strong> — объединяет множества, содержащие вершины a и b. Использует эвристику размера: меньшее множество присоединяется к большему.</li>
+            </ul>
+            
+            <p>Изначально каждая вершина находится в своём собственном множестве, её лидер — она сама, а размер множества равен 1.</p>
+            
+            <p>Благодаря двум эвристикам (сжатие пути и объединение по размеру) операции работают практически за константное время.</p>
+            
+            <p><strong>Временная сложность:</strong> O(α(n)) на операцию, где α(n) — обратная функция Аккермана (практически константа).</p>
+            <p><strong>Пространственная сложность:</strong> O(n) для хранения массивов parent и size.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Пример работы</h3>
+            <p>Рассмотрим объединение вершин 0-1, 2-3, затем 1-2:</p>
+            
+            <div class="input-example">
+                <h4>Пошаговое выполнение:</h4>
+                <pre><code>Инициализация: p = [0, 1, 2, 3, 4, 5], sz = [1, 1, 1, 1, 1, 1], n=6
+
+unite(0, 1):
+  leader(0)=0, leader(1)=1
+  sz[0]=1, sz[1]=1 → присоединяем 0 к 1
+  p[0]=1, sz[1]=2
+
+unite(2, 3):
+  leader(2)=2, leader(3)=3
+  присоединяем 2 к 3
+  p[2]=3, sz[3]=2
+
+unite(1, 2):
+  leader(1)=1, leader(2)=3
+  sz[1]=2, sz[3]=2 → присоединяем 1 к 3
+  p[1]=3, sz[3]=4
+
+Результат: leader(0)=3, leader(1)=3, leader(2)=3, leader(3)=3, leader(4)=4, leader(5)=5
+Множества: {0,1,2,3} и {4}, {5}</code></pre>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать СНМ онлайн</h3>
+            <p>Введите запросы (1 a b — объединить, 2 a b — проверить, в одном ли множестве):</p>
+            
+            <label>Количество вершин (n):</label>
+            <input type="number" id="n-value" value="6" min="1" max="10">
+            
+            <label>Запросы (каждый с новой строки):</label>
+            <textarea id="queries-input" rows="8" placeholder="1 1 2
+1 3 4
+2 1 3
+1 2 3
+2 1 4"></textarea>
+            
+            <div class="try-it">
+                <button onclick="runDSU()">Запустить</button>
+                <button onclick="loadExample1()">Пример 1 (объединения)</button>
+                <button onclick="loadExample2()">Пример 2 (проверки)</button>
+            </div>
+            
+            <div class="output" id="dsu-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runDSU() {
+            const n = parseInt(document.getElementById('n-value').value);
+            const queriesText = document.getElementById('queries-input').value;
+            const lines = queriesText.trim().split('\n');
+            
+            if (isNaN(n) || n < 1) {
+                document.getElementById('dsu-output').innerHTML = 'Введите корректное количество вершин (n ≥ 1)';
+                return;
+            }
+            
+            let p = Array(n).fill().map((_, i) => i);
+            let sz = Array(n).fill(1);
+            const results = [];
+            const steps = [];
+            
+            function leader(v) {
+                if (p[v] !== v) {
+                    p[v] = leader(p[v]);
+                }
+                return p[v];
+            }
+            
+            function unite(a, b) {
+                a = leader(a);
+                b = leader(b);
+                if (a === b) return false;
+                if (sz[a] > sz[b]) {
+                    [a, b] = [b, a];
+                }
+                sz[b] += sz[a];
+                p[a] = b;
+                return true;
+            }
+            
+            steps.push(`Инициализация: n = ${n}`);
+            steps.push(`parent = [${p.map((_, i) => i).join(', ')}]`);
+            steps.push(`size   = [${sz.join(', ')}]\n`);
+            
+            for (let idx = 0; idx < lines.length; idx++) {
+                const parts = lines[idx].trim().split(/\s+/).map(Number);
+                if (parts.length < 3) continue;
+                
+                const type = parts[0];
+                let a = parts[1] - 1;
+                let b = parts[2] - 1;
+                
+                if (a < 0 || a >= n || b < 0 || b >= n) {
+                    results.push(`Ошибка: вершины должны быть от 1 до ${n}`);
+                    steps.push(`Запрос ${idx + 1}: ${type} ${parts[1]} ${parts[2]} - неверные вершины`);
+                    continue;
+                }
+                
+                if (type === 1) {
+                    const beforeA = leader(a);
+                    const beforeB = leader(b);
+                    const success = unite(a, b);
+                    if (success) {
+                        steps.push(`Запрос ${idx + 1}: объединить ${a+1} и ${b+1}`);
+                        steps.push(`  leader(${a+1}) = ${beforeA+1}, leader(${b+1}) = ${beforeB+1} → объединяем`);
+                        steps.push(`  parent = [${p.map(v => v+1).join(', ')}]`);
+                        steps.push(`  size   = [${sz.join(', ')}]`);
+                    } else {
+                        steps.push(`Запрос ${idx + 1}: объединить ${a+1} и ${b+1} — уже в одном множестве`);
+                    }
+                } else if (type === 2) {
+                    const la = leader(a);
+                    const lb = leader(b);
+                    const same = la === lb;
+                    results.push(`${a+1} и ${b+1} ${same ? 'в одном множестве' : 'в разных множествах'}`);
+                    steps.push(`Запрос ${idx + 1}: проверить ${a+1} и ${b+1}`);
+                    steps.push(`  leader(${a+1}) = ${la+1}, leader(${b+1}) = ${lb+1} → ${same ? 'одно множество' : 'разные множества'}`);
+                }
+            }
+            
+            const outputDiv = document.getElementById('dsu-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            if (results.length === 0) {
+                outputDiv.innerHTML = 'Нет запросов типа 2 (проверка)';
+            } else {
+                outputDiv.innerHTML = results.join('<br>');
+            }
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('n-value').value = '6';
+            document.getElementById('queries-input').value = `1 1 2
+1 3 4
+2 1 3
+1 2 3
+2 1 4`;
+            runDSU();
+        }
+        
+        function loadExample2() {
+            document.getElementById('n-value').value = '5';
+            document.getElementById('queries-input').value = `2 1 2
+1 1 2
+2 1 2
+1 2 3
+1 3 4
+2 1 4
+2 1 5`;
+            runDSU();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

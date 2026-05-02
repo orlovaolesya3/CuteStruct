@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Изоморфизм корневых деревьев - проверка структурного сходства</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .try-it textarea {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+        
+        <header>
+            <h1>Изоморфизм корневых деревьев</h1>
+            <p>Проверка структурного сходства деревьев с заданными корнями</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n = int(input())
+r1, r2 = map(int, input().split())
+r1 -= 1
+r2 -= 1
+G1 = [[] for _ in range(n)]
+G2 = [[] for _ in range(n)]
+
+for _ in range(n - 1):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    G1[a].append(b)
+    G1[b].append(a)
+
+for _ in range(n - 1):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    G2[a].append(b)
+    G2[b].append(a)
+
+def build(G, r):
+    R = [[] for _ in range(n)]
+    used = [0] * n
+    Q = [r]
+    used[r] = 1
+    while Q:
+        h = Q.pop()
+        for a in G[h]:
+            if not used[a]:
+                used[a] = 1
+                R[h].append(a)
+                Q.append(a)
+    return R
+
+G1 = build(G1, r1)
+G2 = build(G2, r2)
+
+def f(G, r):
+    def dfs(h):
+        if not G[h]:
+            return 1
+        D = []
+        for a in G[h]:
+            D.append(dfs(a))
+        D.sort()
+        z = 1
+        for a in D:
+            z = (z * (a + 1)) % (10**9 + 7)
+        return z
+    return dfs(r)
+
+h1 = f(G1, r1)
+h2 = f(G2, r2)
+
+if h1 == h2:
+    print("YES")
+else:
+    print("NO")</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MOD = 1000000007;
+
+vector&lt;vector&lt;int&gt;&gt; build(vector&lt;vector&lt;int&gt;&gt;&amp; G, int r, int n) {
+    vector&lt;vector&lt;int&gt;&gt; R(n);
+    vector&lt;bool&gt; used(n, false);
+    stack&lt;int&gt; Q;
+    Q.push(r);
+    used[r] = true;
+    
+    while (!Q.empty()) {
+        int h = Q.top();
+        Q.pop();
+        for (int a : G[h]) {
+            if (!used[a]) {
+                used[a] = true;
+                R[h].push_back(a);
+                Q.push(a);
+            }
+        }
+    }
+    return R;
+}
+
+long long dfs(vector&lt;vector&lt;int&gt;&gt;&amp; G, int h) {
+    if (G[h].empty()) {
+        return 1;
+    }
+    vector&lt;long long&gt; D;
+    for (int a : G[h]) {
+        D.push_back(dfs(G, a));
+    }
+    sort(D.begin(), D.end());
+    long long z = 1;
+    for (long long a : D) {
+        z = (z * (a + 1)) % MOD;
+    }
+    return z;
+}
+
+long long f(vector&lt;vector&lt;int&gt;&gt;&amp; G, int r) {
+    return dfs(G, r);
+}
+
+int main() {
+    int n;
+    cin >> n;
+    int r1, r2;
+    cin >> r1 >> r2;
+    r1--; r2--;
+    
+    vector&lt;vector&lt;int&gt;&gt; G1(n), G2(n);
+    
+    for (int i = 0; i < n - 1; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        G1[a].push_back(b);
+        G1[b].push_back(a);
+    }
+    
+    for (int i = 0; i < n - 1; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        G2[a].push_back(b);
+        G2[b].push_back(a);
+    }
+    
+    vector&lt;vector&lt;int&gt;&gt; R1 = build(G1, r1, n);
+    vector&lt;vector&lt;int&gt;&gt; R2 = build(G2, r2, n);
+    
+    long long h1 = f(R1, r1);
+    long long h2 = f(R2, r2);
+    
+    if (h1 == h2) {
+        cout << "YES" << endl;
+    } else {
+        cout << "NO" << endl;
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает проверка изоморфизма корневых деревьев?</h3>
+            <p><strong>Изоморфизм корневых деревьев</strong> — это структурное сходство двух деревьев с фиксированными корнями. Алгоритм использует хеширование поддеревьев с сортировкой хешей дочерних вершин.</p>
+            
+            <p><strong>Шаги алгоритма:</strong></p>
+            <ol>
+                <li><strong>Построение ориентированного дерева из неориентированного:</strong>
+                    <ul>
+                        <li>Запускаем обход (BFS/DFS) от заданного корня</li>
+                        <li>Для каждой вершины сохраняем только её детей (в направлении от корня)</li>
+                        <li>Получаем корневое дерево, где рёбра направлены от предка к потомкам</li>
+                    </ul>
+                </li>
+                <li><strong>Хеширование поддеревьев:</strong>
+                    <ul>
+                        <li>Для листа хеш = 1</li>
+                        <li>Для внутренней вершины собираем хеши всех дочерних поддеревьев, сортируем их</li>
+                        <li>Хеш = (хеш_1 + 1) * (хеш_2 + 1) * ... % MOD</li>
+                    </ul>
+                </li>
+                <li><strong>Сравнение:</strong>
+                    <ul>
+                        <li>Если хеш корня первого дерева равен хешу корня второго — деревья изоморфны</li>
+                        <li>Иначе — не изоморфны</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <p><strong>Почему это работает?</strong> Сортировка хешей детей обеспечивает независимость от порядка детей. Формула хеша инвариантна относительно перестановки поддеревьев.</p>
+            
+            <p><strong>Временная сложность: O(n log n)</strong>, где n — количество вершин (из-за сортировки хешей детей).</p>
+            <p><strong>Пространственная сложность: O(n)</strong>.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n</code> — количество вершин в каждом дереве</li>
+                <li><code>r1 r2</code> — номера корней первого и второго дерева</li>
+                <li>Далее описывается первое дерево (n-1 строка с рёбрами)</li>
+                <li>Далее описывается второе дерево (n-1 строка с рёбрами)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li><code>YES</code> — если деревья изоморфны как корневые</li>
+                <li><code>NO</code> — иначе</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода (изоморфные деревья):</h4>
+                <pre><code>5
+1 2
+1 2
+1 3
+1 4
+2 5
+1 2
+1 3
+1 4
+2 5</code></pre>
+                <p>Здесь:<br>
+                Два одинаковых дерева с корнями 1 и 2<br>
+                Первое дерево: корень 1, дети 2,3,4; у 2 ребёнок 5<br>
+                Второе дерево: корень 2, дети 1,3,4; у 1 ребёнок 5</p>
+                <p><strong>Вывод: YES</strong></p>
+            </div>
+            
+            <div class="input-example">
+                <h4>Пример ввода (неизоморфные деревья):</h4>
+                <pre><code>5
+1 1
+1 2
+1 3
+1 4
+2 5
+1 2
+2 3
+2 4
+2 5</code></pre>
+                <p><strong>Вывод: NO</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <button onclick="openVisualizer()">Визуализировать на графе</button>
+
+            <script>
+                function openVisualizer() {
+                    const graphData = {
+                        nodes: [1,2,3,4,5],
+                        edges: [[1,2],[1,3],[1,4],[2,5]]
+                    };
+                    localStorage.setItem('visualizerGraph', JSON.stringify(graphData));
+                    window.open('../pages/visualizer.html', '_blank');
+                }
+            </script>
+
+            <h3>Попробовать проверку изоморфизма корневых деревьев онлайн</h3>
+            <p>Введите два дерева с заданными корнями:</p>
+            
+            <label>Ввод:</label>
+            <textarea id="rtree-input" rows="14">5
+1 2
+1 2
+1 3
+1 4
+2 5
+1 2
+1 3
+1 4
+2 5</textarea>
+            
+            <div class="try-it">
+                <button onclick="runRootedIsomorphism()">Запустить</button>
+                <button onclick="loadExample1()">Пример 1 (изоморфные)</button>
+                <button onclick="loadExample2()">Пример 2 (неизоморфные)</button>
+                <button onclick="loadExample3()">Пример 3 (линия)</button>
+            </div>
+            
+            <div class="output" id="rtree-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function buildTree(G, r, n) {
+            const R = Array(n).fill().map(() => []);
+            const used = Array(n).fill(false);
+            const stack = [r];
+            used[r] = true;
+            
+            while (stack.length) {
+                const h = stack.pop();
+                for (const a of G[h]) {
+                    if (!used[a]) {
+                        used[a] = true;
+                        R[h].push(a);
+                        stack.push(a);
+                    }
+                }
+            }
+            return R;
+        }
+        
+        function computeHash(G, node) {
+            if (G[node].length === 0) {
+                return 1;
+            }
+            const children = [];
+            for (const child of G[node]) {
+                children.push(computeHash(G, child));
+            }
+            children.sort((a, b) => a - b);
+            let hash = 1;
+            for (const childHash of children) {
+                hash = (hash * (childHash + 1)) % 1000000007;
+            }
+            return hash;
+        }
+        
+        function runRootedIsomorphism() {
+            const inputText = document.getElementById('rtree-input').value;
+            const lines = inputText.trim().split('\n');
+            
+            try {
+                let lineIdx = 0;
+                const n = parseInt(lines[lineIdx++]);
+                
+                const roots = lines[lineIdx++].trim().split(/\s+/);
+                const r1 = parseInt(roots[0]) - 1;
+                const r2 = parseInt(roots[1]) - 1;
+                
+                const G1 = Array(n).fill().map(() => []);
+                const G2 = Array(n).fill().map(() => []);
+                
+                for (let i = 0; i < n - 1; i++) {
+                    const edge = lines[lineIdx++].trim().split(/\s+/);
+                    let a = parseInt(edge[0]) - 1;
+                    let b = parseInt(edge[1]) - 1;
+                    G1[a].push(b);
+                    G1[b].push(a);
+                }
+                
+                for (let i = 0; i < n - 1; i++) {
+                    const edge = lines[lineIdx++].trim().split(/\s+/);
+                    let a = parseInt(edge[0]) - 1;
+                    let b = parseInt(edge[1]) - 1;
+                    G2[a].push(b);
+                    G2[b].push(a);
+                }
+                
+                const steps = [];
+                steps.push(`Первое дерево (неориентированное, корень ${r1+1}):`);
+                for (let i = 0; i < n; i++) {
+                    steps.push(`  ${i+1} → [${G1[i].map(v => v+1).join(', ')}]`);
+                }
+                steps.push(`\nВторое дерево (неориентированное, корень ${r2+1}):`);
+                for (let i = 0; i < n; i++) {
+                    steps.push(`  ${i+1} → [${G2[i].map(v => v+1).join(', ')}]`);
+                }
+                
+                const R1 = buildTree(G1, r1, n);
+                const R2 = buildTree(G2, r2, n);
+                
+                steps.push(`\nПервое дерево (ориентированное от корня ${r1+1}):`);
+                for (let i = 0; i < n; i++) {
+                    if (R1[i].length > 0) {
+                        steps.push(`  ${i+1} → [${R1[i].map(v => v+1).join(', ')}]`);
+                    }
+                }
+                steps.push(`\nВторое дерево (ориентированное от корня ${r2+1}):`);
+                for (let i = 0; i < n; i++) {
+                    if (R2[i].length > 0) {
+                        steps.push(`  ${i+1} → [${R2[i].map(v => v+1).join(', ')}]`);
+                    }
+                }
+                
+                function computeHashWithSteps(G, node, depth, stepsArray) {
+                    if (G[node].length === 0) {
+                        stepsArray.push(`${'  '.repeat(depth)}Лист ${node+1}: хеш = 1`);
+                        return 1;
+                    }
+                    const children = [];
+                    for (const child of G[node]) {
+                        children.push(computeHashWithSteps(G, child, depth + 1, stepsArray));
+                    }
+                    children.sort((a, b) => a - b);
+                    stepsArray.push(`${'  '.repeat(depth)}Вершина ${node+1}: дети хеши = [${children.join(', ')}] → сортируем`);
+                    let hash = 1;
+                    for (const childHash of children) {
+                        hash = (hash * (childHash + 1)) % 1000000007;
+                    }
+                    stepsArray.push(`${'  '.repeat(depth)}  → хеш = ${hash}`);
+                    return hash;
+                }
+                
+                const steps1 = [];
+                steps1.push(`\nВычисление хешей для первого дерева:`);
+                const hash1 = computeHashWithSteps(R1, r1, 0, steps1);
+                
+                const steps2 = [];
+                steps2.push(`\nВычисление хешей для второго дерева:`);
+                const hash2 = computeHashWithSteps(R2, r2, 0, steps2);
+                
+                steps.push(...steps1);
+                steps.push(...steps2);
+                
+                const isomorphic = (hash1 === hash2);
+                steps.push(`\nХеш корня первого дерева: ${hash1}`);
+                steps.push(`Хеш корня второго дерева: ${hash2}`);
+                steps.push(`\nРезультат: ${isomorphic ? 'YES (деревья изоморфны)' : 'NO (деревья неизоморфны)'}`);
+                
+                const outputDiv = document.getElementById('rtree-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                
+                outputDiv.innerHTML = `Результат: ${isomorphic ? 'YES' : 'NO'}`;
+                
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                
+            } catch(e) {
+                document.getElementById('rtree-output').innerHTML = 'Ошибка при разборе ввода: ' + e.message;
+            }
+        }
+        
+        function loadExample1() {
+            document.getElementById('rtree-input').value = `5
+1 2
+1 2
+1 3
+1 4
+2 5
+1 2
+1 3
+1 4
+2 5`;
+            runRootedIsomorphism();
+        }
+        
+        function loadExample2() {
+            document.getElementById('rtree-input').value = `5
+1 1
+1 2
+1 3
+1 4
+2 5
+1 2
+2 3
+2 4
+2 5`;
+            runRootedIsomorphism();
+        }
+        
+        function loadExample3() {
+            document.getElementById('rtree-input').value = `4
+1 1
+1 2
+2 3
+3 4
+1 2
+2 3
+3 4`;
+            runRootedIsomorphism();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

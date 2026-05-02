@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Алгоритм Прима - минимальное остовное дерево</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .try-it textarea {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+        
+        <header>
+            <h1>Алгоритм Прима</h1>
+            <p>Построение минимального остовного дерева (MST)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>import heapq
+
+n = int(input())
+A = [list(map(int, input().split())) for _ in range(n)]
+used = [0] * n
+Q = []
+D = [10**18] * n
+G = []
+e = 0
+
+D[0] = 0
+heapq.heappush(Q, (0, 0, 0))
+
+while Q and e < n:
+    w, a, b = heapq.heappop(Q)
+    if used[b]:
+        continue
+    used[b] = 1
+    e += 1
+    G.append([a, b, w])
+    for i in range(n):
+        if not used[i]:
+            weight = ((A[b][0] - A[i][0])**2 + (A[b][1] - A[i][1])**2)**0.5
+            if weight < D[i]:
+                D[i] = weight
+                heapq.heappush(Q, (weight, b, i))
+
+z = 0
+for a, b, w in G:
+    z += w
+print(z)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;pair&lt;double, double&gt;&gt; A(n);
+    for (int i = 0; i < n; i++) {
+        cin >> A[i].first >> A[i].second;
+    }
+    
+    vector&lt;int&gt; used(n, 0);
+    priority_queue&lt;tuple&lt;double, int, int&gt;,
+                   vector&lt;tuple&lt;double, int, int&gt;&gt;,
+                   greater&lt;tuple&lt;double, int, int&gt;&gt;&gt; Q;
+    vector&lt;double&gt; D(n, 1e18);
+    vector&lt;tuple&lt;int, int, double&gt;&gt; G;
+    int e = 0;
+    
+    D[0] = 0;
+    Q.push({0, 0, 0});
+    
+    while (!Q.empty() &amp;&amp; e < n) {
+        auto [w, a, b] = Q.top();
+        Q.pop();
+        if (used[b]) continue;
+        used[b] = 1;
+        e++;
+        G.push_back({a, b, w});
+        for (int i = 0; i < n; i++) {
+            if (!used[i]) {
+                double dx = A[b].first - A[i].first;
+                double dy = A[b].second - A[i].second;
+                double weight = sqrt(dx*dx + dy*dy);
+                if (weight < D[i]) {
+                    D[i] = weight;
+                    Q.push({weight, b, i});
+                }
+            }
+        }
+    }
+    
+    double z = 0;
+    for (auto [a, b, w] : G) {
+        z += w;
+    }
+    cout << fixed << setprecision(10) << z << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм Прима?</h3>
+            <p><strong>Алгоритм Прима</strong> — это жадный алгоритм для построения минимального остовного дерева (MST) во взвешенном неориентированном графе.</p>
+            
+            <p>Алгоритм использует приоритетную очередь (кучу) для выбора минимального ребра:</p>
+            <ul>
+                <li>Начинаем с произвольной вершины (обычно с 0) и помечаем её как посещённую</li>
+                <li>Добавляем в очередь все рёбра от текущей вершины к непосещённым</li>
+                <li>Выбираем ребро с минимальным весом, ведущее к непосещённой вершине</li>
+                <li>Помечаем новую вершину как посещённую и повторяем, пока все вершины не будут в дереве</li>
+            </ul>
+            
+            <p>В данной реализации координаты вершин задаются на плоскости, а вес ребра — это евклидово расстояние между точками.</p>
+            
+            <p>Алгоритм гарантирует, что на каждом шаге добавляется ребро с минимальным весом, соединяющее построенную часть с непосещённой вершиной.</p>
+            
+            <p><strong>Временная сложность: O(m log n)</strong> — с использованием приоритетной очереди, где m — количество рёбер.</p>
+            <p><strong>Дополнительная память: O(n + m)</strong>.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n</code> — количество вершин</li>
+                <li><code>x y</code> — координаты i-й вершины (повторяется n раз)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Суммарный вес рёбер в минимальном остовном дереве (евклидово расстояние)</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>4
+0 0
+1 0
+0 1
+1 1</code></pre>
+                <p>Здесь:<br>
+                n=4 (вершины в углах квадрата)<br>
+                Ребра: расстояние между вершинами 0-1 = 1, 0-2 = 1, 1-3 = 1, 2-3 = 1, диагонали ≈1.414</p>
+                <p><strong>Вывод: 3</strong> (минимальное остовное дерево из трёх рёбер по 1)</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <button onclick="openVisualizer()">Визуализировать на графе</button>
+
+            <script>
+                function openVisualizer() {
+                    const graphData = {
+                        nodes: [1,2,3,4],
+                        edges: [[1,2],[1,3],[2,4]]
+                    };
+                    localStorage.setItem('visualizerGraph', JSON.stringify(graphData));
+                    window.open('../pages/visualizer.html', '_blank');
+                }
+            </script>
+
+            <h3>Попробовать алгоритм Прима онлайн</h3>
+            <p>Введите координаты вершин:</p>
+            
+            <label>Ввод:</label>
+            <textarea id="prim-input" rows="10">4
+0 0
+1 0
+0 1
+1 1</textarea>
+            
+            <div class="try-it">
+                <button onclick="runPrim()">Запустить</button>
+                <button onclick="loadExample1()">Пример 1 (квадрат)</button>
+                <button onclick="loadExample2()">Пример 2 (линия)</button>
+                <button onclick="loadExample3()">Пример 3 (звезда)</button>
+            </div>
+            
+            <div class="output" id="prim-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runPrim() {
+            const inputText = document.getElementById('prim-input').value;
+            const lines = inputText.trim().split('\n');
+            
+            try {
+                const n = parseInt(lines[0]);
+                const points = [];
+                
+                for (let i = 1; i <= n; i++) {
+                    const coords = lines[i].trim().split(/\s+/);
+                    const x = parseFloat(coords[0]);
+                    const y = parseFloat(coords[1]);
+                    points.push([x, y]);
+                }
+                
+                const used = Array(n).fill(false);
+                const D = Array(n).fill(1e18);
+                const heap = [];
+                const G = [];
+                let e = 0;
+                
+                D[0] = 0;
+                heap.push([0, 0, 0]);
+                
+                const steps = [];
+                steps.push(`Начальная вершина: 0 (${points[0][0]}, ${points[0][1]})`);
+                steps.push(`Расстояния до других вершин: бесконечность\n`);
+                
+                function heapPush(item) {
+                    heap.push(item);
+                    heap.sort((a, b) => a[0] - b[0]);
+                }
+                
+                function heapPop() {
+                    return heap.shift();
+                }
+                
+                while (heap.length > 0 && e < n) {
+                    heap.sort((a, b) => a[0] - b[0]);
+                    const [w, a, b] = heap.shift();
+                    if (used[b]) continue;
+                    used[b] = true;
+                    e++;
+                    if (a !== b) {
+                        G.push([a, b, w]);
+                        steps.push(`\nДобавляем ребро ${a} → ${b} весом ${w.toFixed(4)}`);
+                    }
+                    
+                    steps.push(`\nОбрабатываем вершину ${b} (${points[b][0]}, ${points[b][1]}):`);
+                    for (let i = 0; i < n; i++) {
+                        if (!used[i]) {
+                            const dx = points[b][0] - points[i][0];
+                            const dy = points[b][1] - points[i][1];
+                            const weight = Math.sqrt(dx*dx + dy*dy);
+                            if (weight < D[i]) {
+                                D[i] = weight;
+                                heapPush([weight, b, i]);
+                                steps.push(`  Расстояние до вершины ${i} обновлено: ${weight.toFixed(4)}`);
+                            }
+                        }
+                    }
+                    steps.push(`Текущие расстояния: ${D.map((d, i) => `${i}: ${d === 1e18 ? '∞' : d.toFixed(4)}`).join(', ')}`);
+                }
+                
+                let total = 0;
+                for (const [, , w] of G) {
+                    total += w;
+                }
+                
+                const outputDiv = document.getElementById('prim-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                
+                outputDiv.innerHTML = `Суммарный вес минимального остовного дерева = ${total.toFixed(6)}`;
+                
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                
+            } catch(e) {
+                document.getElementById('prim-output').innerHTML = 'Ошибка при разборе ввода: ' + e.message;
+            }
+        }
+        
+        function loadExample1() {
+            document.getElementById('prim-input').value = `4
+0 0
+1 0
+0 1
+1 1`;
+            runPrim();
+        }
+        
+        function loadExample2() {
+            document.getElementById('prim-input').value = `3
+0 0
+2 0
+5 0`;
+            runPrim();
+        }
+        
+        function loadExample3() {
+            document.getElementById('prim-input').value = `5
+0 0
+2 0
+4 0
+0 2
+2 2`;
+            runPrim();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

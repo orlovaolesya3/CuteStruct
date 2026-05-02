@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Кузнечик - количество способов допрыгать до цели</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Кузнечик</h1>
+            <p>Количество способов допрыгать до n-й позиции (шаги от 1 до k)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n, k = map(int, input().split())
+dp = [0] * n
+
+if n == 1:
+    print(1)
+    exit()
+
+dp[0] = 1
+dp[1] = 1
+
+for i in range(2, min(k + 1, n)):
+    dp[i] = dp[i - 1] * 2
+
+for i in range(k + 1, n):
+    dp[i] = dp[i - 1] * 2
+    dp[i] -= dp[i - k - 1]
+
+print(dp[-1])</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n, k;
+    cin >> n >> k;
+    
+    vector&lt;long long&gt; dp(n);
+    
+    if (n == 1) {
+        cout << 1 << endl;
+        return 0;
+    }
+    
+    dp[0] = 1;
+    dp[1] = 1;
+    
+    for (int i = 2; i < min(k + 1, n); i++) {
+        dp[i] = dp[i - 1] * 2;
+    }
+    
+    for (int i = k + 1; i < n; i++) {
+        dp[i] = dp[i - 1] * 2;
+        dp[i] -= dp[i - k - 1];
+    }
+    
+    cout << dp[n - 1] << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает задача о кузнечике?</h3>
+            <p>Кузнечик находится на позиции 0. За один прыжок он может переместиться вперёд на любое количество позиций от 1 до k. Нужно найти количество способов попасть на позицию n-1 (последняя клетка).</p>
+            
+            <p><strong>Основная идея динамического программирования:</strong></p>
+            <ul>
+                <li>Пусть <code>dp[i]</code> — количество способов попасть на позицию i</li>
+                <li><code>dp[0] = 1</code> (стартовая позиция)</li>
+                <li><code>dp[1] = 1</code> (только прыжок на 1)</li>
+                <li>Для i от 2 до k: <code>dp[i] = dp[i-1] * 2</code> (на позицию i можно попасть прыжком с любой предыдущей позиции)</li>
+                <li>Для i > k: <code>dp[i] = dp[i-1] * 2 - dp[i-k-1]</code> (вычитаем способы, которые пришли с позиции i-k-1, так как прыжок на k+1 отсюда запрещён)</li>
+            </ul>
+            
+            <p><strong>Почему формула dp[i] = dp[i-1] * 2 - dp[i-k-1]?</strong></p>
+            <ul>
+                <li>На позицию i можно попасть из любой позиции от i-k до i-1 (k вариантов)</li>
+                <li>Обратная зависимость: dp[i] = dp[i-1] + dp[i-2] + ... + dp[i-k]</li>
+                <li>Если знаем dp[i-1], то dp[i] = dp[i-1] + (dp[i-2] + ... + dp[i-k])</li>
+                <li>Но dp[i-1] уже включает сумму dp[i-2] + ... + dp[i-k-1]</li>
+                <li>Поэтому dp[i] = dp[i-1] * 2 - dp[i-k-1]</li>
+            </ul>
+            
+            <p><strong>Временная сложность: O(n)</strong> — один проход по массиву.</p>
+            <p><strong>Пространственная сложность: O(n)</strong> для массива dp (можно оптимизировать до O(k) с помощью очереди).</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n k</code> — количество позиций и максимальная длина прыжка</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Количество способов допрыгать до позиции n-1</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>5 2</code></pre>
+                <p><strong>Вывод: 5</strong></p>
+                <p>Способы для n=5, k=2 (позиции 0..4):<br>
+                0→1→2→3→4<br>
+                0→1→2→4<br>
+                0→1→3→4<br>
+                0→2→3→4<br>
+                0→2→4<br>
+                Всего 5 способов.</p>
+            </div>
+            
+            <div class="input-example">
+                <h4>Пример ввода (k=1):</h4>
+                <pre><code>5 1</code></pre>
+                <p><strong>Вывод: 1</strong> (только один способ — прыгать на 1)</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <p>Введите количество позиций и максимальную длину прыжка:</p>
+            
+            <label>n (количество позиций):</label>
+            <input type="number" id="n-input" value="5" min="1" max="50">
+            
+            <label>k (максимальная длина прыжка):</label>
+            <input type="number" id="k-input" value="2" min="1" max="10">
+            
+            <div class="try-it">
+                <button onclick="runGrasshopper()">Запустить</button>
+                <button onclick="loadExample1()">Пример: n=5, k=2</button>
+                <button onclick="loadExample2()">Пример: n=6, k=3</button>
+                <button onclick="loadExample3()">Пример: n=5, k=1</button>
+            </div>
+            
+            <div class="output" id="grasshopper-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runGrasshopper() {
+            const n = parseInt(document.getElementById('n-input').value);
+            const k = parseInt(document.getElementById('k-input').value);
+            
+            if (isNaN(n) || n < 1) {
+                document.getElementById('grasshopper-output').innerHTML = 'Введите корректное n (≥ 1)';
+                return;
+            }
+            if (isNaN(k) || k < 1) {
+                document.getElementById('grasshopper-output').innerHTML = 'Введите корректное k (≥ 1)';
+                return;
+            }
+            
+            const dp = Array(n).fill(0);
+            const steps = [];
+            
+            steps.push(`Позиции: от 0 до ${n-1}`);
+            steps.push(`Максимальный прыжок: ${k}`);
+            steps.push(`\nИнициализация:`);
+            steps.push(`  dp[0] = 1 (стартовая позиция, 1 способ)`);
+            
+            if (n === 1) {
+                steps.push(`\nРезультат: dp[0] = 1`);
+                const outputDiv = document.getElementById('grasshopper-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                outputDiv.innerHTML = `Количество способов: 1`;
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                return;
+            }
+            
+            dp[0] = 1;
+            dp[1] = 1;
+            steps.push(`  dp[1] = 1 (только прыжок на 1)`);
+            
+            // Первая фаза: i от 2 до min(k, n-1)
+            const limit1 = Math.min(k + 1, n);
+            if (limit1 > 2) {
+                steps.push(`\nПервая фаза: i от 2 до ${limit1-1} (пока можно прыгать с любой предыдущей позиции)`);
+                for (let i = 2; i < limit1; i++) {
+                    dp[i] = dp[i - 1] * 2;
+                    steps.push(`  dp[${i}] = dp[${i-1}] * 2 = ${dp[i-1]} * 2 = ${dp[i]}`);
+                }
+            }
+            
+            // Вторая фаза: i от k+1 до n-1
+            if (n > k + 1) {
+                steps.push(`\nВторая фаза: i от ${k+1} до ${n-1} (вычитаем способы, которые пришли с позиции i-k-1)`);
+                for (let i = k + 1; i < n; i++) {
+                    const before = dp[i - 1] * 2;
+                    const subtract = dp[i - k - 1];
+                    dp[i] = before - subtract;
+                    steps.push(`  dp[${i}] = dp[${i-1}] * 2 - dp[${i-k-1}] = ${dp[i-1]} * 2 - ${subtract} = ${before} - ${subtract} = ${dp[i]}`);
+                }
+            }
+            
+            steps.push(`\nРезультат: dp[${n-1}] = ${dp[n-1]}`);
+            
+            const outputDiv = document.getElementById('grasshopper-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `Количество способов допрыгать до позиции ${n-1}: ${dp[n-1]}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('n-input').value = '5';
+            document.getElementById('k-input').value = '2';
+            runGrasshopper();
+        }
+        
+        function loadExample2() {
+            document.getElementById('n-input').value = '6';
+            document.getElementById('k-input').value = '3';
+            runGrasshopper();
+        }
+        
+        function loadExample3() {
+            document.getElementById('n-input').value = '5';
+            document.getElementById('k-input').value = '1';
+            runGrasshopper();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

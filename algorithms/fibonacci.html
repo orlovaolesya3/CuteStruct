@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Числа Фибоначчи - динамическое программирование</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/dynamic.html" class="back-btn">← Назад к ДП</a>
+        
+        <header>
+            <h1>Числа Фибоначчи</h1>
+            <p>Классический пример динамического программирования</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python (рекурсия + мемоизация)</div>
+                <pre><code>def fib_rec(n, memo={}):
+    if n <= 1:
+        return n
+    if n in memo:
+        return memo[n]
+    memo[n] = fib_rec(n-1, memo) + fib_rec(n-2, memo)
+    return memo[n]
+
+n = int(input())
+print(fib_rec(n))</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++ (рекурсия + мемоизация)</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;long long&gt; memo;
+
+long long fib_rec(int n) {
+    if (n <= 1) return n;
+    if (memo[n] != -1) return memo[n];
+    return memo[n] = fib_rec(n-1) + fib_rec(n-2);
+}
+
+int main() {
+    int n;
+    cin >> n;
+    memo.assign(n + 1, -1);
+    cout << fib_rec(n) << endl;
+    return 0;
+}</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">🐍 Python (DP — итеративный)</div>
+                <pre><code>n = int(input())
+dp = [0] * (n + 1)
+dp[0] = 0
+dp[1] = 1
+for i in range(2, n + 1):
+    dp[i] = dp[i-1] + dp[i-2]
+print(dp[n])</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++ (DP — итеративный)</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    vector&lt;long long&gt; dp(n + 1);
+    dp[0] = 0;
+    dp[1] = 1;
+    for (int i = 2; i <= n; i++) {
+        dp[i] = dp[i-1] + dp[i-2];
+    }
+    cout << dp[n] << endl;
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работают числа Фибоначчи?</h3>
+            <p><strong>Числа Фибоначчи</strong> — это последовательность, в которой каждое следующее число равно сумме двух предыдущих: <code>F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2)</code>.</p>
+            
+            <p>Задача идеально подходит для демонстрации динамического программирования, так как наивная рекурсия многократно вычисляет одни и те же подзадачи.</p>
+            
+            <h4>Два подхода к решению</h4>
+            <ul>
+                <li><strong>Рекурсия с мемоизацией (top-down):</strong>
+                    <ul>
+                        <li>Начинаем с вычисления F(n) и рекурсивно спускаемся</li>
+                        <li>Запоминаем уже вычисленные значения в словаре/массиве (memo)</li>
+                        <li>Каждое число вычисляется только один раз</li>
+                    </ul>
+                </li>
+                <li><strong>Итеративный DP (bottom-up):</strong>
+                    <ul>
+                        <li>Заполняем массив dp от 0 до n</li>
+                        <li>dp[i] = dp[i-1] + dp[i-2]</li>
+                        <li>Не использует рекурсию, гарантированно O(n)</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p><strong>Временная сложность:</strong> O(n) — каждое число вычисляется один раз.</p>
+            <p><strong>Пространственная сложность:</strong> O(n) для массива memo/dp или O(1) для оптимизированного варианта (хранить только два последних числа).</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n</code> — номер числа Фибоначчи (0-индексация)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Значение F(n)</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>10</code></pre>
+                <p><strong>Вывод: 55</strong></p>
+                <p>Ряд Фибоначчи: F(0)=0, F(1)=1, F(2)=1, F(3)=2, F(4)=3, F(5)=5, F(6)=8, F(7)=13, F(8)=21, F(9)=34, F(10)=55</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <h3>Попробовать онлайн</h3>
+            <p>Введите номер числа Фибоначчи:</p>
+            
+            <label>n:</label>
+            <input type="number" id="fib-input" value="10" min="0" max="40">
+            
+            <div class="try-it">
+                <button onclick="runFibonacci()">Запустить</button>
+                <button onclick="loadExample1()">Пример: n = 10</button>
+                <button onclick="loadExample2()">Пример: n = 20</button>
+                <button onclick="loadExample3()">Пример: n = 0</button>
+            </div>
+            
+            <div class="output" id="fib-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение (итеративный DP):</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runFibonacci() {
+            const n = parseInt(document.getElementById('fib-input').value);
+            
+            if (isNaN(n) || n < 0) {
+                document.getElementById('fib-output').innerHTML = 'Введите неотрицательное число n';
+                return;
+            }
+            
+            const steps = [];
+            steps.push(`Вычисляем F(${n}) методом итеративного DP (bottom-up)`);
+            steps.push(`\nБазовые случаи:`);
+            steps.push(`  dp[0] = 0`);
+            steps.push(`  dp[1] = 1`);
+            
+            if (n <= 1) {
+                steps.push(`\nРезультат: F(${n}) = ${n}`);
+            } else {
+                steps.push(`\nЗаполняем массив dp от 2 до ${n}:`);
+                let a = 0, b = 1;  // a = F(0), b = F(1)
+                for (let i = 2; i <= n; i++) {
+                    const c = a + b;
+                    steps.push(`  dp[${i}] = dp[${i-2}] + dp[${i-1}] = ${a} + ${b} = ${c}`);
+                    a = b;
+                    b = c;
+                }
+                steps.push(`\nРезультат: F(${n}) = ${b}`);
+            }
+            
+            // Быстрое вычисление для ответа
+            let result;
+            if (n <= 1) {
+                result = n;
+            } else {
+                let a = 0, b = 1;
+                for (let i = 2; i <= n; i++) {
+                    const c = a + b;
+                    a = b;
+                    b = c;
+                }
+                result = b;
+            }
+            
+            const outputDiv = document.getElementById('fib-output');
+            const stepsDiv = document.getElementById('step-by-step');
+            const stepsContainer = document.getElementById('steps-container');
+            
+            outputDiv.innerHTML = `F(${n}) = ${result}`;
+            
+            stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+            stepsDiv.style.display = 'block';
+        }
+        
+        function loadExample1() {
+            document.getElementById('fib-input').value = '10';
+            runFibonacci();
+        }
+        
+        function loadExample2() {
+            document.getElementById('fib-input').value = '20';
+            runFibonacci();
+        }
+        
+        function loadExample3() {
+            document.getElementById('fib-input').value = '0';
+            runFibonacci();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Изоморфизм деревьев - проверка структурного сходства</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .try-it textarea {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+        
+        <header>
+            <h1>Изоморфизм деревьев</h1>
+            <p>Проверка, являются ли два дерева структурно одинаковыми</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>from collections import deque
+
+def find_centers(tree, n):
+    if n == 1:
+        return [0]
+    
+    deg = [0] * n
+    leaves = deque()
+    
+    for u in range(n):
+        deg[u] = len(tree[u])
+        if deg[u] == 1:
+            leaves.append(u)
+    
+    rem = n
+    while rem > 2:
+        for _ in range(len(leaves)):
+            leaf = leaves.popleft()
+            for nb in tree[leaf]:
+                deg[nb] -= 1
+                if deg[nb] == 1:
+                    leaves.append(nb)
+            rem -= 1
+    
+    return list(leaves)
+
+def encode(tree, node, parent):
+    if len(tree[node]) == 1 and parent != -1:
+        return "01"
+    
+    codes = []
+    for nb in tree[node]:
+        if nb != parent:
+            codes.append(encode(tree, nb, node))
+    
+    codes.sort()
+    return "0" + "".join(codes) + "1"
+
+def are_isomorphic(t1, t2, n):
+    c1 = find_centers(t1, n)
+    c2 = find_centers(t2, n)
+    
+    if len(c1) != len(c2):
+        return False
+    
+    codes1 = set()
+    for c in c1:
+        codes1.add(encode(t1, c, -1))
+    
+    for c in c2:
+        if encode(t2, c, -1) in codes1:
+            return True
+    
+    return False
+
+n = int(input())
+G1 = [[] for _ in range(n)]
+G2 = [[] for _ in range(n)]
+
+for _ in range(n - 1):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    G1[a].append(b)
+    G1[b].append(a)
+
+for _ in range(n - 1):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    G2[a].append(b)
+    G2[b].append(a)
+
+if are_isomorphic(G1, G2, n):
+    print("Yes")
+else:
+    print("No")</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;int&gt; find_centers(const vector&lt;vector&lt;int&gt;&gt;&amp; tree, int n) {
+    if (n == 1) return {0};
+    
+    vector&lt;int&gt; deg(n);
+    queue&lt;int&gt; leaves;
+    
+    for (int u = 0; u < n; u++) {
+        deg[u] = tree[u].size();
+        if (deg[u] == 1) leaves.push(u);
+    }
+    
+    int rem = n;
+    while (rem > 2) {
+        int leaves_count = leaves.size();
+        for (int i = 0; i < leaves_count; i++) {
+            int leaf = leaves.front();
+            leaves.pop();
+            for (int nb : tree[leaf]) {
+                deg[nb]--;
+                if (deg[nb] == 1) leaves.push(nb);
+            }
+            rem--;
+        }
+    }
+    
+    vector&lt;int&gt; result;
+    while (!leaves.empty()) {
+        result.push_back(leaves.front());
+        leaves.pop();
+    }
+    return result;
+}
+
+string encode(const vector&lt;vector&lt;int&gt;&gt;&amp; tree, int node, int parent) {
+    if (tree[node].size() == 1 &amp;&amp; parent != -1) return "01";
+    
+    vector&lt;string&gt; codes;
+    for (int nb : tree[node]) {
+        if (nb != parent) {
+            codes.push_back(encode(tree, nb, node));
+        }
+    }
+    
+    sort(codes.begin(), codes.end());
+    string result = "0";
+    for (const string&amp; code : codes) {
+        result += code;
+    }
+    result += "1";
+    return result;
+}
+
+bool are_isomorphic(const vector&lt;vector&lt;int&gt;&gt;&amp; t1,
+                    const vector&lt;vector&lt;int&gt;&gt;&amp; t2, int n) {
+    vector&lt;int&gt; c1 = find_centers(t1, n);
+    vector&lt;int&gt; c2 = find_centers(t2, n);
+    
+    if (c1.size() != c2.size()) return false;
+    
+    set&lt;string&gt; codes1;
+    for (int c : c1) {
+        codes1.insert(encode(t1, c, -1));
+    }
+    
+    for (int c : c2) {
+        if (codes1.find(encode(t2, c, -1)) != codes1.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector&lt;vector&lt;int&gt;&gt; G1(n), G2(n);
+    
+    for (int i = 0; i < n - 1; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        G1[a].push_back(b);
+        G1[b].push_back(a);
+    }
+    
+    for (int i = 0; i < n - 1; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        G2[a].push_back(b);
+        G2[b].push_back(a);
+    }
+    
+    if (are_isomorphic(G1, G2, n)) {
+        cout << "Yes" << endl;
+    } else {
+        cout << "No" << endl;
+    }
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает проверка изоморфизма деревьев?</h3>
+            <p><strong>Изоморфизм деревьев</strong> — это структурное сходство: два дерева считаются изоморфными, если их можно совместить, переименовав вершины. Алгоритм использует центры деревьев и кодирование подвешенных деревьев.</p>
+            
+            <p><strong>Алгоритм:</strong></p>
+            <ol>
+                <li><strong>Нахождение центров дерева:</strong>
+                    <ul>
+                        <li>Постепенно удаляем листья, пока не останется 1 или 2 вершины</li>
+                        <li>Для дерева из одной вершины центр — она сама</li>
+                        <li>Центры характеризуют структуру дерева</li>
+                    </ul>
+                </li>
+                <li><strong>Кодирование дерева (Ахо-Хопкрофт):</strong>
+                    <ul>
+                        <li>Рекурсивно строим скобочную строку: корень → "0" + коды детей + "1"</li>
+                        <li>Дети сортируются лексикографически, чтобы порядок не влиял на результат</li>
+                        <li>Лист (кроме корневого) кодируется как "01"</li>
+                    </ul>
+                </li>
+                <li><strong>Проверка:</strong>
+                    <ul>
+                        <li>Находим центры обоих деревьев</li>
+                        <li>Кодируем деревья, используя каждый центр в качестве корня</li>
+                        <li>Если коды для центров пересекаются — деревья изоморфны</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <p>Метод кодирования гарантирует, что изоморфные деревья порождают одинаковые строки.</p>
+            
+            <p><strong>Временная сложность: O(n log n)</strong>, где n — количество вершин (сортировка кодов детей).</p>
+            <p><strong>Пространственная сложность: O(n)</strong>.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n</code> — количество вершин в каждом дереве</li>
+                <li><code>a b</code> — рёбра первого дерева (повторяется n-1 раз)</li>
+                <li><code>a b</code> — рёбра второго дерева (повторяется n-1 раз)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li><code>Yes</code> — если деревья изоморфны</li>
+                <li><code>No</code> — иначе</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода (изоморфные деревья):</h4>
+                <pre><code>4
+1 2
+1 3
+1 4
+1 2
+2 3
+2 4</code></pre>
+                <p>Здесь:<br>
+                Первое дерево — звезда (вершина 1 соединена с 2,3,4)<br>
+                Второе дерево — тоже звезда (вершина 2 соединена с 1,3,4)</p>
+                <p><strong>Вывод: Yes</strong></p>
+            </div>
+            
+            <div class="input-example">
+                <h4>Пример ввода (неизоморфные деревья):</h4>
+                <pre><code>4
+1 2
+2 3
+2 4
+1 2
+1 3
+1 4</code></pre>
+                <p>Здесь:<br>
+                Первое дерево — путь длины 2 с ответвлением<br>
+                Второе дерево — звезда</p>
+                <p><strong>Вывод: No</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <button onclick="openVisualizer()">Визуализировать на графе</button>
+
+            <script>
+                function openVisualizer() {
+                    const graphData = {
+                        nodes: [1,2,3,4],
+                        edges: [[1,2],[1,3],[1,4]]
+                    };
+                    localStorage.setItem('visualizerGraph', JSON.stringify(graphData));
+                    window.open('../pages/visualizer.html', '_blank');
+                }
+            </script>
+
+            <h3>Попробовать проверку изоморфизма онлайн</h3>
+            <p>Введите два дерева (n вершин, n-1 ребро в каждом):</p>
+            
+            <label>Ввод:</label>
+            <textarea id="iso-input" rows="12">4
+1 2
+1 3
+1 4
+1 2
+2 3
+2 4</textarea>
+            
+            <div class="try-it">
+                <button onclick="runIsomorphism()">Запустить</button>
+                <button onclick="loadExample1()">Пример 1 (изоморфные звёзды)</button>
+                <button onclick="loadExample2()">Пример 2 (неизоморфные)</button>
+                <button onclick="loadExample3()">Пример 3 (линия и линия)</button>
+            </div>
+            
+            <div class="output" id="iso-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function findCenters(tree, n) {
+            if (n === 1) return [0];
+            
+            let deg = new Array(n).fill(0);
+            let leaves = [];
+            
+            for (let u = 0; u < n; u++) {
+                deg[u] = tree[u].length;
+                if (deg[u] === 1) leaves.push(u);
+            }
+            
+            let rem = n;
+            while (rem > 2) {
+                let newLeaves = [];
+                for (let leaf of leaves) {
+                    for (let nb of tree[leaf]) {
+                        deg[nb]--;
+                        if (deg[nb] === 1) newLeaves.push(nb);
+                    }
+                    rem--;
+                }
+                leaves = newLeaves;
+            }
+            return leaves;
+        }
+        
+        function encodeTree(tree, node, parent) {
+            if (tree[node].length === 1 && parent !== -1) {
+                return "01";
+            }
+            
+            let codes = [];
+            for (let nb of tree[node]) {
+                if (nb !== parent) {
+                    codes.push(encodeTree(tree, nb, node));
+                }
+            }
+            codes.sort();
+            return "0" + codes.join("") + "1";
+        }
+        
+        function runIsomorphism() {
+            const inputText = document.getElementById('iso-input').value;
+            const lines = inputText.trim().split('\n');
+            
+            try {
+                const n = parseInt(lines[0]);
+                
+                if (lines.length < 1 + 2 * (n - 1)) {
+                    document.getElementById('iso-output').innerHTML = 'Ошибка: недостаточно строк для рёбер';
+                    return;
+                }
+                
+                const G1 = Array(n).fill().map(() => []);
+                const G2 = Array(n).fill().map(() => []);
+                
+                let lineIdx = 1;
+                for (let i = 0; i < n - 1; i++) {
+                    const edge = lines[lineIdx++].trim().split(/\s+/);
+                    let a = parseInt(edge[0]) - 1;
+                    let b = parseInt(edge[1]) - 1;
+                    G1[a].push(b);
+                    G1[b].push(a);
+                }
+                
+                for (let i = 0; i < n - 1; i++) {
+                    const edge = lines[lineIdx++].trim().split(/\s+/);
+                    let a = parseInt(edge[0]) - 1;
+                    let b = parseInt(edge[1]) - 1;
+                    G2[a].push(b);
+                    G2[b].push(a);
+                }
+                
+                const steps = [];
+                steps.push(`Первое дерево:`);
+                for (let i = 0; i < n; i++) {
+                    steps.push(`  ${i+1} → [${G1[i].map(v => v+1).join(', ')}]`);
+                }
+                steps.push(`\nВторое дерево:`);
+                for (let i = 0; i < n; i++) {
+                    steps.push(`  ${i+1} → [${G2[i].map(v => v+1).join(', ')}]`);
+                }
+                
+                const c1 = findCenters(G1, n);
+                const c2 = findCenters(G2, n);
+                steps.push(`\nЦентры первого дерева: [${c1.map(c => c+1).join(', ')}]`);
+                steps.push(`Центры второго дерева: [${c2.map(c => c+1).join(', ')}]`);
+                
+                if (c1.length !== c2.length) {
+                    steps.push(`\nРазное количество центров → деревья неизоморфны`);
+                    document.getElementById('iso-output').innerHTML = `Результат: No (разное количество центров)`;
+                    document.getElementById('steps-container').innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                    document.getElementById('step-by-step').style.display = 'block';
+                    return;
+                }
+                
+                const codes1 = new Set();
+                for (let c of c1) {
+                    const code = encodeTree(G1, c, -1);
+                    codes1.add(code);
+                    steps.push(`Код для центра ${c+1} (первое дерево): ${code}`);
+                }
+                
+                let isomorphic = false;
+                for (let c of c2) {
+                    const code = encodeTree(G2, c, -1);
+                    steps.push(`Код для центра ${c+1} (второе дерево): ${code}`);
+                    if (codes1.has(code)) {
+                        isomorphic = true;
+                        steps.push(`  → код совпадает с одним из кодов первого дерева`);
+                    }
+                }
+                
+                steps.push(`\nРезультат: ${isomorphic ? 'Yes (деревья изоморфны)' : 'No (деревья неизоморфны)'}`);
+                
+                const outputDiv = document.getElementById('iso-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                
+                outputDiv.innerHTML = `Результат: ${isomorphic ? 'Yes' : 'No'}`;
+                
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                
+            } catch(e) {
+                document.getElementById('iso-output').innerHTML = 'Ошибка при разборе ввода: ' + e.message;
+            }
+        }
+        
+        function loadExample1() {
+            document.getElementById('iso-input').value = `4
+1 2
+1 3
+1 4
+1 2
+2 3
+2 4`;
+            runIsomorphism();
+        }
+        
+        function loadExample2() {
+            document.getElementById('iso-input').value = `4
+1 2
+2 3
+2 4
+1 2
+1 3
+1 4`;
+            runIsomorphism();
+        }
+        
+        function loadExample3() {
+            document.getElementById('iso-input').value = `5
+1 2
+2 3
+3 4
+4 5
+1 2
+2 3
+3 4
+4 5`;
+            runIsomorphism();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

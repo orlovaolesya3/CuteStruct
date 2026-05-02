@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Топологическая сортировка (обнаружение цикла)</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        /* Дополнительные стили для страницы топологической сортировки */
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .try-it {
+            margin-top: 20px;
+        }
+
+        .try-it textarea {
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .step-by-step {
+            margin-top: 20px;
+        }
+
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+
+        <header>
+            <h1>Топологическая сортировка</h1>
+            <p>Порядок вершин в ациклическом ориентированном графе</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>n, m = map(int, input().split())
+A = [[] for _ in range(n)]
+used = [0] * n
+R = []
+p = [0] * n
+f = 0
+
+for _ in range(m):
+    a, b = map(int, input().split())
+    a -= 1
+    b -= 1
+    A[a].append(b)
+
+def dfs(h):
+    global f
+    used[h] = 1
+    for a in A[h]:
+        if used[a] == 0:
+            p[a] = h
+            dfs(a)
+        elif used[a] == 1 and f == 0:
+            f = 1
+    used[h] = 2
+    R.append(h + 1)
+
+for i in range(n):
+    if used[i] == 0:
+        dfs(i)
+
+if f:
+    print(-1)
+else:
+    R.reverse()
+    print(*R)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using T = int;
+
+vector&lt;vector&lt;T&gt;&gt; A;
+vector&lt;T&gt; used;
+vector&lt;T&gt; R;
+vector&lt;T&gt; p;
+T f;
+
+void dfs(T v) {
+    used[v] = 1;
+    for (T to : A[v]) {
+        if (!used[to]) {
+            p[to] = v;
+            dfs(to);
+        } else if (used[to] == 1 &amp;&amp; f == 0) {
+            f = 1;
+        }
+    }
+    used[v] = 2;
+    R.push_back(v);
+}
+
+int main() {
+    T n, m, a, b, i;
+    cin >> n >> m;
+    p.resize(n);
+    A.resize(n);
+    used.resize(n);
+    
+    for (i = 0; i &lt; m; i++) {
+        cin >> a >> b;
+        a--;
+        b--;
+        A[a].push_back(b);
+    }
+
+    for (i = 0; i &lt; n; i++) {
+        if (!used[i]) {
+            dfs(i);
+        }
+    }
+    
+    if (f) {
+        cout << -1;
+        return 0;
+    }
+    
+    reverse(R.begin(), R.end());
+    for (T r : R) {
+        cout << r + 1 << " ";
+    }
+    cout << "\n";
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает топологическая сортировка?</h3>
+            <p><strong>Топологическая сортировка</strong> — это упорядочивание вершин ориентированного графа таким образом, что для каждого ребра <code>(u → v)</code> вершина <code>u</code> находится в списке раньше, чем <code>v</code>. Алгоритм также обнаруживает циклы (неотъемлемое свойство ориентированного графа).</p>
+            
+            <p>Алгоритм использует обход в глубину (DFS) и раскраску вершин:</p>
+            <ul>
+                <li><code>used[h] = 0</code> (белый) — вершина не посещена</li>
+                <li><code>used[h] = 1</code> (серый) — вершина в процессе обработки (в текущем стеке вызовов)</li>
+                <li><code>used[h] = 2</code> (чёрный) — вершина обработана полностью</li>
+            </ul>
+            <p>Если во время обхода встречается серая вершина, значит найден цикл (<code>f = 1</code>).</p>
+            <p><strong>Важно:</strong> Топологическая сортировка возможна <strong>только для ациклических ориентированных графов (DAG)</strong>. При наличии цикла программа выводит <code>-1</code>.</p>
+            <p>После рекурсивного обхода всех потомков вершина добавляется в стек <code>R</code>. В конце стек переворачивается, чтобы получить правильный порядок.</p>
+            
+            <p><strong>Временная сложность: O(n + m)</strong>, где n — количество вершин, m — количество рёбер.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n m</code> — количество вершин и количество рёбер</li>
+                <li><code>a b</code> — ребро от вершины a к вершине b (повторяется m раз)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Порядок вершин в топологическом порядке (вершины нумеруются с 1).</li>
+                <li>Если граф содержит цикл, выводится <code>-1</code>.</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода (DAG):</h4>
+                <pre><code>4 3
+1 2
+2 3
+3 4</code></pre>
+                <p>Здесь:<br>
+                n=4 (вершины 1,2,3,4)<br>
+                Рёбра: 1→2, 2→3, 3→4<br>
+                Граф — цепочка, цикла нет.</p>
+                <p><strong>Вывод (один из возможных): 1 2 3 4</strong></p>
+            </div>
+            <div class="input-example">
+                <h4>Пример ввода (с циклом):</h4>
+                <pre><code>3 3
+1 2
+2 3
+3 1</code></pre>
+                <p>Здесь:<br>
+                n=3 (вершины 1,2,3)<br>
+                Рёбра: 1→2, 2→3, 3→1 — образуют цикл.</p>
+                <p><strong>Вывод: -1</strong></p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <button onclick="openVisualizer()"> Визуализировать на графе</button>
+
+            <script>
+                function openVisualizer() {
+                    // Сохраняем текущий граф в localStorage для визуализатора
+                    const graphData = {
+                        nodes: [1,2,3,4],
+                        edges: [[1,2],[2,3],[3,4]]
+                    };
+                    localStorage.setItem('visualizerGraph', JSON.stringify(graphData));
+                    window.open('../pages/visualizer.html', '_blank');
+                }
+            </script>
+
+            <h3>Попробовать топологическую сортировку онлайн</h3>
+            <p>Введите граф в формате, описанном выше:</p>
+
+            <label>Ввод:</label>
+            <textarea id="ts-input" rows="10">4 3
+1 2
+2 3
+3 4</textarea>
+
+            <div class="try-it">
+                <button onclick="runTopologicalSort()"> Запустить</button>
+                <button onclick="loadExample1()"> Пример 1 (цепочка)</button>
+                <button onclick="loadExample2()"> Пример 2 (граф с циклом)</button>
+                <button onclick="loadExample3()"> Пример 3 (несколько веток)</button>
+            </div>
+
+            <div class="output" id="ts-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runTopologicalSort() {
+            const inputText = document.getElementById('ts-input').value;
+            const lines = inputText.trim().split('\n');
+
+            try {
+                // Читаем n и m
+                const firstLine = lines[0].trim().split(/\s+/);
+                const n = parseInt(firstLine[0]);
+                const m = parseInt(firstLine[1]);
+
+                // Создаём граф
+                const G = Array(n).fill().map(() => []);
+
+                // Читаем рёбра
+                for (let i = 1; i <= m; i++) {
+                    const edge = lines[i].trim().split(/\s+/);
+                    let a = parseInt(edge[0]) - 1;
+                    let b = parseInt(edge[1]) - 1;
+
+                    if (a >= 0 && a < n && b >= 0 && b < n) {
+                        G[a].push(b);
+                    }
+                }
+
+                // Цвета: 0 - белый, 1 - серый, 2 - чёрный
+                const colors = Array(n).fill(0);
+                const order = [];
+                let hasCycle = false;
+                const steps = [];
+
+                function dfs(v, path) {
+                    if (hasCycle) return;
+                    colors[v] = 1; // серый
+                    steps.push(`Вход в вершину ${v + 1} (серый)`);
+                    
+                    for (const to of G[v]) {
+                        if (colors[to] === 0) {
+                            steps.push(`  Рекурсивно идём в соседа ${to + 1} из ${v + 1}`);
+                            dfs(to, path + ` → ${to + 1}`);
+                        } else if (colors[to] === 1) {
+                            steps.push(`   Найден цикл: ребро ${v + 1} → ${to + 1}, вершина ${to + 1} уже в стеке`);
+                            hasCycle = true;
+                            return;
+                        } else {
+                            steps.push(`  Сосед ${to + 1} уже обработан (чёрный), пропускаем`);
+                        }
+                        if (hasCycle) return;
+                    }
+                    colors[v] = 2; // чёрный
+                    order.push(v + 1);
+                    steps.push(`Выход из вершины ${v + 1} (чёрный), добавляем в порядок`);
+                }
+
+                for (let i = 0; i < n && !hasCycle; i++) {
+                    if (colors[i] === 0) {
+                        steps.push(`\nНачинаем обход с вершины ${i + 1}:`);
+                        dfs(i, `${i+1}`);
+                    }
+                }
+
+                const outputDiv = document.getElementById('ts-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+
+                if (hasCycle) {
+                    outputDiv.innerHTML = ` Граф содержит цикл. Топологическая сортировка невозможна.<br><strong>Вывод: -1</strong>`;
+                } else {
+                    const sorted = order.reverse().join(' → ');
+                    outputDiv.innerHTML = ` Топологический порядок:<br><strong>${sorted}</strong>`;
+                }
+
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+
+            } catch (e) {
+                document.getElementById('ts-output').innerHTML = ' Ошибка при разборе ввода: ' + e.message;
+            }
+        }
+
+        // Пример 1: простая цепочка (без цикла)
+        function loadExample1() {
+            document.getElementById('ts-input').value = `4 3
+1 2
+2 3
+3 4`;
+            runTopologicalSort();
+        }
+
+        // Пример 2: граф с циклом
+        function loadExample2() {
+            document.getElementById('ts-input').value = `3 3
+1 2
+2 3
+3 1`;
+            runTopologicalSort();
+        }
+
+        // Пример 3: граф с несколькими ветвями
+        function loadExample3() {
+            document.getElementById('ts-input').value = `6 6
+1 2
+1 3
+2 4
+3 4
+4 5
+4 6`;
+            runTopologicalSort();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>

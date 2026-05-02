@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Алгоритм Краскала - минимальное остовное дерево</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        li {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .input-example {
+            background: rgba(171, 205, 239, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .input-example h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .input-example pre {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .try-it {
+            margin-top: 20px;
+        }
+        
+        .try-it textarea {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .step-by-step {
+            margin-top: 20px;
+        }
+        
+        .step {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        body.light-theme .step {
+            background: #f0f0f0;
+        }
+        
+        body.dark-theme .step {
+            background: #2a2a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../pages/graphs.html" class="back-btn">← Назад к графовым алгоритмам</a>
+        
+        <header>
+            <h1>Алгоритм Краскала</h1>
+            <p>Построение минимального остовного дерева (MST)</p>
+        </header>
+
+        <!-- Код на Python и C++ -->
+        <div class="code-container">
+            <div class="code-block">
+                <div class="code-header">🐍 Python</div>
+                <pre><code>import random
+
+def leader(h):
+    if P[h] != h:
+        P[h] = leader(P[h])
+    return P[h]
+
+def unite(a, b):
+    a = leader(a)
+    b = leader(b)
+    if random.randint(0, 1):
+        a, b = b, a
+    if a != b:
+        P[a] = b
+
+n, m = map(int, input().split())
+P = list(range(n))
+G = []
+
+for _ in range(m):
+    a, b, w = map(int, input().split())
+    G.append([w, [a - 1, b - 1]])
+
+cost = 0
+G.sort()
+
+for i in range(m):
+    a = G[i][1][0]
+    b = G[i][1][1]
+    w = G[i][0]
+    if leader(a) != leader(b):
+        cost += w
+        unite(a, b)
+
+print(cost)</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">⚙️ C++</div>
+                <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector&lt;int&gt; P;
+
+int leader(int h) {
+    if (P[h] != h) {
+        P[h] = leader(P[h]);
+    }
+    return P[h];
+}
+
+void unite(int a, int b) {
+    a = leader(a);
+    b = leader(b);
+    if (rand() % 2) {
+        swap(a, b);
+    }
+    if (a != b) {
+        P[a] = b;
+    }
+}
+
+int main() {
+    srand(time(0));
+    
+    int n, m;
+    cin >> n >> m;
+    
+    P.resize(n);
+    for (int i = 0; i < n; i++) {
+        P[i] = i;
+    }
+    
+    vector&lt;tuple&lt;int, int, int&gt;&gt; G;
+    
+    for (int i = 0; i < m; i++) {
+        int a, b, w;
+        cin >> a >> b >> w;
+        a--; b--;
+        G.push_back({w, a, b});
+    }
+    
+    sort(G.begin(), G.end());
+    
+    int cost = 0;
+    for (auto [w, a, b] : G) {
+        if (leader(a) != leader(b)) {
+            cost += w;
+            unite(a, b);
+        }
+    }
+    
+    cout << cost << endl;
+    
+    return 0;
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Объяснение алгоритма -->
+        <div class="explanation">
+            <h3>Как работает алгоритм Краскала?</h3>
+            <p><strong>Алгоритм Краскала</strong> — это жадный алгоритм для построения минимального остовного дерева (MST) во взвешенном неориентированном графе.</p>
+            
+            <p>Алгоритм использует структуру данных "система непересекающихся множеств" (DSU):</p>
+            <ul>
+                <li><strong>leader(h)</strong> — находит корень множества, содержащего вершину h (с сжатием пути)</li>
+                <li><strong>unite(a, b)</strong> — объединяет два множества, случайным образом выбирая корень</li>
+            </ul>
+            
+            <p>Шаги алгоритма:</p>
+            <ul>
+                <li>Сортируем все рёбра по весу (по возрастанию)</li>
+                <li>Проходим по рёбрам в отсортированном порядке</li>
+                <li>Если ребро соединяет вершины из разных компонент, добавляем его в MST и объединяем компоненты</li>
+                <li>Если вершины уже в одной компоненте, пропускаем ребро (иначе возникнет цикл)</li>
+            </ul>
+            
+            <p>В результате получается дерево, соединяющее все вершины с минимальной суммарной стоимостью.</p>
+            
+            <p><strong>Временная сложность: O(m log m)</strong> — сортировка рёбер, где m — количество рёбер.</p>
+            <p><strong>Дополнительная память: O(n)</strong> — для хранения DSU.</p>
+        </div>
+
+        <!-- Формат ввода/вывода -->
+        <div class="explanation">
+            <h3>Формат ввода и вывода</h3>
+            <p><strong>Ввод:</strong></p>
+            <ul>
+                <li><code>n m</code> — количество вершин и количество рёбер</li>
+                <li><code>a b w</code> — ребро между вершинами a и b с весом w (повторяется m раз)</li>
+            </ul>
+            <p><strong>Вывод:</strong></p>
+            <ul>
+                <li>Суммарный вес рёбер в минимальном остовном дереве</li>
+            </ul>
+            
+            <div class="input-example">
+                <h4>Пример ввода:</h4>
+                <pre><code>4 5
+1 2 1
+1 3 2
+2 3 3
+2 4 4
+3 4 5</code></pre>
+                <p>Здесь:<br>
+                n=4 (вершины 1,2,3,4)<br>
+                m=5 (5 рёбер)</p>
+                <p><strong>Вывод: 7</strong> (рёбра 1-2 вес 1, 1-3 вес 2, 2-4 вес 4)</p>
+            </div>
+        </div>
+
+        <!-- Интерактивный запуск -->
+        <div class="demo">
+            <button onclick="openVisualizer()">Визуализировать на графе</button>
+
+            <script>
+                function openVisualizer() {
+                    const graphData = {
+                        nodes: [1,2,3,4],
+                        edges: [[1,2],[1,3],[2,4]]
+                    };
+                    localStorage.setItem('visualizerGraph', JSON.stringify(graphData));
+                    window.open('../pages/visualizer.html', '_blank');
+                }
+            </script>
+
+            <h3>Попробовать алгоритм Краскала онлайн</h3>
+            <p>Введите граф в формате, описанном выше:</p>
+            
+            <label>Ввод:</label>
+            <textarea id="kruskal-input" rows="10">4 5
+1 2 1
+1 3 2
+2 3 3
+2 4 4
+3 4 5</textarea>
+            
+            <div class="try-it">
+                <button onclick="runKruskal()">Запустить</button>
+                <button onclick="loadExample1()">Пример 1 (полный граф)</button>
+                <button onclick="loadExample2()">Пример 2 (дерево)</button>
+                <button onclick="loadExample3()">Пример 3 (сложный граф)</button>
+            </div>
+            
+            <div class="output" id="kruskal-output">
+                Результат появится здесь...
+            </div>
+        </div>
+
+        <!-- Пошаговое объяснение -->
+        <div class="step-by-step" id="step-by-step" style="display: none;">
+            <h3>Пошаговое выполнение:</h3>
+            <div id="steps-container"></div>
+        </div>
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        function runKruskal() {
+            const inputText = document.getElementById('kruskal-input').value;
+            const lines = inputText.trim().split('\n');
+            
+            try {
+                const firstLine = lines[0].trim().split(/\s+/);
+                const n = parseInt(firstLine[0]);
+                const m = parseInt(firstLine[1]);
+                
+                const edges = [];
+                
+                for (let i = 1; i <= m; i++) {
+                    const edge = lines[i].trim().split(/\s+/);
+                    const a = parseInt(edge[0]) - 1;
+                    const b = parseInt(edge[1]) - 1;
+                    const w = parseInt(edge[2]);
+                    edges.push([w, a, b]);
+                }
+                
+                edges.sort((x, y) => x[0] - y[0]);
+                
+                const parent = Array(n).fill().map((_, i) => i);
+                
+                function leader(h) {
+                    if (parent[h] !== h) {
+                        parent[h] = leader(parent[h]);
+                    }
+                    return parent[h];
+                }
+                
+                function unite(a, b) {
+                    a = leader(a);
+                    b = leader(b);
+                    if (Math.random() < 0.5) {
+                        [a, b] = [b, a];
+                    }
+                    if (a !== b) {
+                        parent[a] = b;
+                    }
+                }
+                
+                let cost = 0;
+                const steps = [];
+                steps.push(`Начальные родители: [${parent.map((_, i) => i + 1).join(', ')}]`);
+                
+                for (const [w, a, b] of edges) {
+                    steps.push(`\nРебро ${a+1}-${b+1} вес ${w}:`);
+                    if (leader(a) !== leader(b)) {
+                        cost += w;
+                        unite(a, b);
+                        steps.push(`  Добавляем в MST. Суммарный вес = ${cost}`);
+                        steps.push(`  Объединяем множества. Родители: [${parent.map(p => p + 1).join(', ')}]`);
+                    } else {
+                        steps.push(`  Пропускаем (вершины уже в одной компоненте)`);
+                    }
+                }
+                
+                steps.push(`\nИтоговый вес минимального остовного дерева: ${cost}`);
+                
+                const outputDiv = document.getElementById('kruskal-output');
+                const stepsDiv = document.getElementById('step-by-step');
+                const stepsContainer = document.getElementById('steps-container');
+                
+                outputDiv.innerHTML = `Суммарный вес минимального остовного дерева = ${cost}`;
+                
+                stepsContainer.innerHTML = steps.map(step => `<div class="step">${step}</div>`).join('');
+                stepsDiv.style.display = 'block';
+                
+            } catch(e) {
+                document.getElementById('kruskal-output').innerHTML = 'Ошибка при разборе ввода: ' + e.message;
+            }
+        }
+        
+        function loadExample1() {
+            document.getElementById('kruskal-input').value = `4 5
+1 2 1
+1 3 2
+2 3 3
+2 4 4
+3 4 5`;
+            runKruskal();
+        }
+        
+        function loadExample2() {
+            document.getElementById('kruskal-input').value = `4 3
+1 2 3
+1 3 4
+2 4 5`;
+            runKruskal();
+        }
+        
+        function loadExample3() {
+            document.getElementById('kruskal-input').value = `6 9
+1 2 1
+1 3 2
+2 3 3
+2 4 4
+3 4 5
+3 5 6
+4 5 7
+4 6 8
+5 6 9`;
+            runKruskal();
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadExample1();
+        });
+    </script>
+</body>
+</html>
